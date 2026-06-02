@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title>Home</title>
+</head>
+
+<body>
+
+<h1>
+    Olá,
+    <span sec:authentication="name"></span>
+</h1>
+
+<p>
+    Aqui estão as páginas que você pode acessar:
+</p>
+
+<ul>
+
+    <li sec:authorize="hasRole('ALUNO')">
+        <a th:href="@{/aluno/main}">
+            Área do Aluno
+        </a>
+    </li>
+
+    <li sec:authorize="hasRole('RESPONSAVEL')">
+        <a th:href="@{/responsavel/main}">
+            Área do Responsável
+        </a>
+    </li>
+
+    <li sec:authorize="hasRole('SECRETARIO')">
+        <a th:href="@{/secretario/main}">
+            Área do Secretário
+        </a>
+    </li>
+
+    <li sec:authorize="hasRole('SUPERVISOR')">
+        <a th:href="@{/supervisor/main}">
+            Área do Supervisor
+        </a>
+    </li>
+
+    <li sec:authorize="hasRole('ADMINISTRADOR')">
+        <a th:href="@{/administrador/main}">
+            Área do Administrador
+        </a>
+    </li>
+
+</ul>
+
+</body>
+</html>

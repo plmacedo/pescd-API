@@ -47,45 +47,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler customSuccessHandler() {
-
         return (request, response, authentication) -> {
-
-            var authorities =
-                    authentication.getAuthorities();
-
-            String redirectUrl = "/";
-
-            for (var auth : authorities) {
-
-                String role = auth.getAuthority();
-
-                if (role.equals("ROLE_ADMINISTRADOR")) {
-                    redirectUrl = "/administrador/main";
-                    break;
-                }
-
-                if (role.equals("ROLE_SUPERVISOR")) {
-                    redirectUrl = "/supervisor/main";
-                    break;
-                }
-
-                if (role.equals("ROLE_SECRETARIO")) {
-                    redirectUrl = "/secretario/main";
-                    break;
-                }
-
-                if (role.equals("ROLE_RESPONSAVEL")) {
-                    redirectUrl = "/responsavel/main";
-                    break;
-                }
-
-                if (role.equals("ROLE_ALUNO")) {
-                    redirectUrl = "/aluno/main";
-                    break;
-                }
-            }
-
-            response.sendRedirect(redirectUrl);
+            response.sendRedirect("/home");
         };
     }
 
