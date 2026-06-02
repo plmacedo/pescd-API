@@ -2,7 +2,8 @@ package br.ufscar.pescd.model;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 
 @Entity
 @Table(name = "oferta")
@@ -12,10 +13,10 @@ public class Oferta{
     private Long id;
 
     @Column(nullable = false, unique = false)
-    private Date inicio;
+    private LocalDate inicio;
 
     @Column(nullable = false, unique = false)
-    private Date fim;
+    private LocalDate fim;
 
     @Column(nullable = false, unique = false)
     private String nome;
@@ -31,7 +32,7 @@ public class Oferta{
 
     public Oferta(){}
 
-    public Oferta(Long id, Date inicio, Date fim, String nome, String semestre, String prof, int matriculados){
+    public Oferta(Long id, LocalDate inicio, LocalDate fim, String nome, String semestre, String prof, int matriculados){
         this.id = id;
         this.inicio = inicio;
         this.fim = fim;
@@ -48,10 +49,10 @@ public class Oferta{
     public String getNome(){
         return nome;
     }
-    public Date getInicio(){
+    public LocalDate getInicio(){
         return inicio;
     }
-    public Date getFim(){
+    public LocalDate getFim(){
         return fim;
     }
     public String getSemestre(){

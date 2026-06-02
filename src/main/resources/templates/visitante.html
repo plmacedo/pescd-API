@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Página do Visitante</title>
+</head>
+<body>
+
+<h1>PÁGINA DO VISITANTE</h1>
+
+<h2>Ofertas</h2>
+
+<ul>
+    <li th:each="oferta : ${ofertas}">
+        <b th:text="${oferta.nome}"></b>
+        -
+        Professor : <span th:text="${oferta.prof}"></span>
+        -
+        Semestre : <span th:text="${oferta.semestre}"></span>
+        -
+        Inicio do semestre : <span th:text="${oferta.inicio}"></span>
+        -
+        Fim do semestre : <span th:text="${oferta.fim}"></span>
+        -
+        Alunos Matriculados : <span th:text="${oferta.matriculados}"></span>
+    </li>
+</ul>
+
+</body>
+</html>

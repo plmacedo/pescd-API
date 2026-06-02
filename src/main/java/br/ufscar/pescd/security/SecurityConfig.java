@@ -20,7 +20,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> auth
                 //TODOS
-                        .requestMatchers("/login" , "/css").permitAll()
+                        .requestMatchers("/login" , "/css", "/visitante").permitAll()
                 //ALUNO
                         .requestMatchers("/aluno/**").hasRole("ALUNO")
                 //ADMINISTRADOR
