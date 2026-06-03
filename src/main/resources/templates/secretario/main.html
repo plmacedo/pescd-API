@@ -7,7 +7,7 @@
     <li th:each="oferta : ${ofertas}">
         <b th:text="${oferta.nome}"></b>
         -
-        Professor : <span th:text="${oferta.prof}"></span>
+        Professor : <span th:text="${oferta.prof.nome}"></span>
         -
         Semestre : <span th:text="${oferta.semestre}"></span>
         -

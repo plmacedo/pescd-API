@@ -27,8 +27,10 @@ public class Oferta {
     @Column(nullable = false)
     private String semestre;
 
+
+    //AJEITAR O NULLABLE
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "criador_id", nullable = false)
+    @JoinColumn(name = "criador_id", nullable = true)
     private Usuario criador;
 
     @ManyToOne(fetch = FetchType.LAZY)

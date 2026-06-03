@@ -83,17 +83,36 @@ public class PescdApplication {
 		OfertaService ofertaService =
 				context.getBean(OfertaService.class);
 
+		Usuario ProfJoao = new Usuario(
+				null,
+				"Joao",
+				List.of("ROLE_RESPONSAVEL"),
+				"joao",
+				"123"
+				);
+
+		usuarioService.salvar(ProfJoao);
 		Oferta oferta1 = new Oferta(
 				null,
 				LocalDate.of(2026, 3, 1),
 				LocalDate.of(2026, 7, 15),
 				"Web1",
 				"2026/1",
-				"João",
+				ProfJoao,
 				25
 		);
 
 		ofertaService.salvar(oferta1);
+
+		Usuario ProfMaria = new Usuario(
+				null,
+				"Maria",
+				List.of("ROLE_SUPERVISOR"),
+				"maria",
+				"123"
+		);
+
+		usuarioService.salvar(ProfMaria);
 
 		Oferta oferta2 = new Oferta(
 				null,
@@ -101,7 +120,7 @@ public class PescdApplication {
 				LocalDate.of(2026, 12, 10),
 				"BD",
 				"2026/2",
-				"Maria",
+				ProfMaria,
 				30
 		);
 
@@ -113,7 +132,7 @@ public class PescdApplication {
 				LocalDate.of(2025, 7, 15),
 				"ES1",
 				"2025/1",
-				"Carlos",
+				ProfMaria,
 				40
 		);
 
@@ -125,7 +144,7 @@ public class PescdApplication {
 				LocalDate.of(2025, 12, 15),
 				"IA",
 				"2025/2",
-				"Ana",
+				ProfJoao,
 				20
 		);
 
@@ -137,7 +156,7 @@ public class PescdApplication {
 				LocalDate.of(2024, 7, 15),
 				"Web2",
 				"2024/1",
-				"Marcos",
+				ProfMaria,
 				18
 		);
 
