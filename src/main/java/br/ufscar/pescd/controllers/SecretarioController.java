@@ -67,6 +67,7 @@ public class SecretarioController {
     @PostMapping("/encerrar/{id}")
     public String encerrarOferta(@PathVariable Long id) {
 
+        // pega o usuario atual
         Authentication auth =
                 SecurityContextHolder.getContext().getAuthentication();
 

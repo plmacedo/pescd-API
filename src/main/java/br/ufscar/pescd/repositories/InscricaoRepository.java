@@ -14,5 +14,6 @@ public interface InscricaoRepository extends JpaRepository<Inscricao, Long> {
 
     boolean existsByAlunoAndOferta(Usuario aluno, Oferta oferta);
     List<Inscricao> findByOfertaId(Long ofertaId);
+    List<Inscricao> findByAlunoId(Long alunoId);
 
 }

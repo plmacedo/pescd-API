@@ -26,6 +26,17 @@ public class InscricaoService {
     @Autowired
     private UsuarioService usuarioService;
 
+
+
+    public List<Oferta> inscricoesDoAluno(Long alunoId){
+        List<Inscricao> inscricoes = inscricaoRepository.findByAlunoId(alunoId);
+
+        List<Oferta> ofertas;
+        ofertas = inscricoes.stream().map(Inscricao::getOferta).toList();
+
+        return ofertas;
+    }
+
     // inscreve aluno ja existente no BD
     public void inscreverAluno(Long ofertaId, Long alunoId) {
         Oferta oferta = ofertaService.buscarPorId(ofertaId);
