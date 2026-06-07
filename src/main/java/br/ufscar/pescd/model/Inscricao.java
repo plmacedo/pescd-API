@@ -20,6 +20,13 @@ public class Inscricao {
     @JoinColumn(name = "oferta_id", nullable = false)
     private Oferta oferta;
 
+    @Column(columnDefinition = "TEXT")
+    private String PlanoDeTrabalho;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusPlano statusPlano = StatusPlano.PENDENTE;
+
 
     // Construtor vazio (obrigatório para o Spring/Hibernate funcionar)
     public Inscricao() {}
@@ -43,6 +50,9 @@ public class Inscricao {
         return oferta;
     }
 
+    public String getPlanoDeTrabalho() { return PlanoDeTrabalho; }
+
+    public StatusPlano getStatusPlano() {return statusPlano; }
 
 
     public void setAluno(Usuario aluno) {
@@ -52,4 +62,8 @@ public class Inscricao {
     public void setOferta(Oferta oferta) {
         this.oferta = oferta;
     }
+
+    public void setPlanoDeTrabalho(String PlanoDeTrabalho) {this.PlanoDeTrabalho = PlanoDeTrabalho; }
+
+    public void setStatusPlano(StatusPlano statusPlano) {this.statusPlano = statusPlano; }
 }

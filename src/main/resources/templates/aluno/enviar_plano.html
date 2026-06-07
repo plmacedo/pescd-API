@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{aluno.enviarPlano.titulo}">Enviar Plano de Trabalho</title>
+</head>
+<body>
+
+<h2 th:text="#{aluno.enviarPlano.titulo}">Enviar Plano de Trabalho</h2>
+
+<p>
+    <span th:text="#{aluno.enviarPlano.oferta}">Oferta:</span>
+    <span th:text="${inscricao.oferta.nome}"></span>
+</p>
+
+<form th:action="@{/aluno/enviarPlano}" th:object="${planoDTO}" method="post">
+
+    <input type="hidden" th:field="*{inscricaoId}" />
+
+    <div>
+        <label for="planoDeTrabalho" th:text="#{aluno.enviarPlano.instrucao}">Escreva seu Plano de Trabalho abaixo:</label>
+        <br>
+        <textarea id="planoDeTrabalho" th:field="*{planoDeTrabalho}" rows="10" cols="50"></textarea>
+
+        <span th:if="${#fields.hasErrors('planoDeTrabalho')}" th:errors="*{planoDeTrabalho}" style="color:red;">Erro</span>
+    </div>
+
+    <br>
+    <button type="submit" th:text="#{aluno.enviarPlano.btnEnviar}">Enviar para Aprovação</button>
+    <a th:href="@{/aluno/main}">
+        <button type="button" th:text="#{aluno.enviarPlano.btnCancelar}">Cancelar</button>
+    </a>
+</form>
+
+</body>
+</html>
