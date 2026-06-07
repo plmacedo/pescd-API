@@ -3,6 +3,7 @@ package br.ufscar.pescd.services;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
+import br.ufscar.pescd.model.StatusPlano;
 import br.ufscar.pescd.repositories.InscricaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,24 @@ public class InscricaoService {
         ofertas = inscricoes.stream().map(Inscricao::getOferta).toList();
 
         return ofertas;
+    }
+
+    public void salvar(Inscricao inscricao) {
+        inscricaoRepository.save(inscricao);
+    }
+
+    public Inscricao buscarPorID(Long inscricaoID) {
+        Optional<Inscricao> obj = inscricaoRepository.findById(inscricaoID);
+        return obj.orElseThrow(() -> new RuntimeException("Inscrição não encontrada."));
+    }
+
+    public void enviarPlanoTrabalho(Long inscricaoID, String textoPlano) {
+        Inscricao inscricao = buscarPorID(inscricaoID);
+
+        inscricao.setPlanoDeTrabalho(textoPlano);
+        inscricao.setStatusPlano(StatusPlano.ENVIADO);
+
+        inscricaoRepository.save(inscricao);
     }
 
     // inscreve aluno ja existente no BD

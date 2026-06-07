@@ -3,10 +3,13 @@ package br.ufscar.pescd;
 import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.model.Oferta;
+import br.ufscar.pescd.model.Inscricao;
 
 import br.ufscar.pescd.repositories.FraseRepository;
+import br.ufscar.pescd.repositories.InscricaoRepository;
 import br.ufscar.pescd.services.UsuarioService;
 import br.ufscar.pescd.services.OfertaService;
+import br.ufscar.pescd.services.InscricaoService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,7 +47,7 @@ public class PescdApplication {
 				null,
 				"Murilo Terra",
 				List.of("ROLE_ALUNO"),
-				"cheasegreater",
+				"cheesegrater",
 				"123"
 		);
 
@@ -176,6 +179,12 @@ public class PescdApplication {
 		);
 
 		ofertaService.salvar(oferta5);
+
+		InscricaoService inscricaoService = context.getBean(InscricaoService.class);
+
+		Inscricao inscricaoPendente = new Inscricao(aluno, oferta1);
+
+		inscricaoService.salvar(inscricaoPendente);
 
 
 		FraseConfirmacao frase = new FraseConfirmacao("Deseja mesmo encerrar essa oferta?");
