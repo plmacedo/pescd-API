@@ -1,5 +1,6 @@
 package br.ufscar.pescd.services;
 
+import br.ufscar.pescd.dto.RelatorioFinalFormDTO;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
@@ -113,6 +114,19 @@ public class InscricaoService {
 
         // RN-4
         inscricao.setStatusPlano(StatusPlano.DOCUMENTACAO_ENVIADA);
+
+        inscricaoRepository.save(inscricao);
+    }
+
+    public void enviarRelatorioFinal(Long inscricaoID, RelatorioFinalFormDTO dto) throws IOException {
+        Inscricao inscricao = buscarPorID(inscricaoID);
+
+        if (dto.getArquivo() != null && !dto.getArquivo().isEmpty()) {
+            inscricao.setArquivoRelatorioFinal(dto.getArquivo().getBytes());
+        }
+
+        // Atualiza status para indicar que o relatório foi enviado
+        inscricao.setStatusPlano(StatusPlano.RELATORIO_ENVIADO);
 
         inscricaoRepository.save(inscricao);
     }

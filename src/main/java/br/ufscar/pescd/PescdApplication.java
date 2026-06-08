@@ -4,6 +4,7 @@ import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Inscricao;
+import br.ufscar.pescd.model.StatusPlano;
 
 import br.ufscar.pescd.repositories.FraseRepository;
 import br.ufscar.pescd.repositories.InscricaoRepository;
@@ -186,6 +187,13 @@ public class PescdApplication {
 
 		inscricaoService.salvar(inscricaoPendente);
 
+		//para testar a AL.04
+		Inscricao inscricaoAvancada = new Inscricao(aluno2, oferta2);
+		inscricaoAvancada.setStatusPlano(StatusPlano.DOCUMENTACAO_ENVIADA);
+		inscricaoAvancada.setInstituicaoMinistrou("Ufscar");
+		inscricaoAvancada.setNomeDisciplinaMinistrada("Banco de Dados");
+
+		inscricaoService.salvar(inscricaoAvancada);
 
 		FraseConfirmacao frase = new FraseConfirmacao("Deseja mesmo encerrar essa oferta?");
 		FraseRepository fraseRepository = context.getBean(FraseRepository.class);

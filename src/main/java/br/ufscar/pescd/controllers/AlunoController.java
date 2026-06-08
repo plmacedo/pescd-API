@@ -2,6 +2,7 @@ package br.ufscar.pescd.controllers;
 
 import br.ufscar.pescd.dto.AddAlunoFormDTO;
 import br.ufscar.pescd.dto.PlanoTrabalhoFormDTO;
+import br.ufscar.pescd.dto.RelatorioFinalFormDTO;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
@@ -132,5 +133,40 @@ public class AlunoController {
         }
 
         return "redirect:/aluno/main?sucessoDocumentacao";
+    }
+
+    @GetMapping("/enviarRelatorio/{idInscricao}")
+    public String exibirFormularioRelatorio(@PathVariable Long idInscricao, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(idInscricao);
+
+        RelatorioFinalFormDTO dto = new RelatorioFinalFormDTO();
+        dto.setInscricaoID(inscricao.getId());
+
+        model.addAttribute("inscricao", inscricao);
+        model.addAttribute("relatorioDTO", dto);
+        return "aluno/enviar_relatorio";
+    }
+
+    @PostMapping("/enviarRelatorio")
+    public String processarEnvioRelatorio(@Valid @ModelAttribute("relatorioDTO") RelatorioFinalFormDTO dto, BindingResult result, Model model) {
+        // Validando tamanho e tipo seguindo o padrão do método enviarDocumentacao
+        if (dto.getArquivo() == null || dto.getArquivo().isEmpty() || !"application/pdf".equals(dto.getArquivo().getContentType())) {
+            result.rejectValue("arquivo", "error.arquivo.pdf");
+        }
+
+        if (result.hasErrors()) {
+            Inscricao inscricao = inscricaoService.buscarPorID(dto.getInscricaoID());
+            model.addAttribute("inscricao", inscricao);
+            return "aluno/enviar_relatorio";
+        }
+
+        try {
+            inscricaoService.enviarRelatorioFinal(dto.getInscricaoID(), dto);
+        } catch (IOException e) {
+            model.addAttribute("erro", "Erro ao salvar o arquivo.");
+            return "aluno/enviar_relatorio";
+        }
+
+        return "redirect:/aluno/main?sucessoRelatorio";
     }
 }
