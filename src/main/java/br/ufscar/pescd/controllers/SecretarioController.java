@@ -242,4 +242,19 @@ public class SecretarioController {
         return "redirect:/aluno/main?sucessoDocumentacao";
     }
 
+    @GetMapping("/oferta/{id}/detalhes")
+    public String detalhesOferta(@PathVariable Long id, Model model) {
+        Oferta oferta = ofertaService.buscarPorId(id);
+        model.addAttribute("oferta", oferta);
+        model.addAttribute("inscricoes", inscricaoRepository.findByOfertaId(id));
+        return "secretario/detalhes_oferta";
+    }
+
+    @GetMapping("/inscricao/{id}/detalhes")
+    public String detalhesAluno(@PathVariable Long id, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+        model.addAttribute("inscricao", inscricao);
+        return "secretario/detalhes_aluno";
+    }
+
 }

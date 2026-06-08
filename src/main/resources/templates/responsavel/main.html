@@ -43,6 +43,12 @@
         Status:
         <span th:text="#{${oferta.status}}"></span>
 
+        <a th:href="@{/responsavel/oferta/{id}/detalhes(id=${oferta.id})}">
+            <button type="button" th:text="#{geral.verDetalhes}">
+                Ver Detalhes
+            </button>
+        </a>
+
         <form th:if="${oferta.status == 'Em andamento'}"
               th:action="@{/responsavel/finalizar/{id}(id=${oferta.id})}"
               method="post"

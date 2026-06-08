@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{detalhes.aluno.titulo}">Detalhes do Aluno</title>
+</head>
+<body>
+<h1><span th:text="#{detalhes.aluno.titulo}">Detalhes do Aluno:</span> <span th:text="${inscricao.aluno.nome}"></span></h1>
+<h3>
+    <span th:text="#{detalhes.aluno.statusAtual}">Status Atual:</span>
+    <span th:text="#{${'StatusPlano.' + inscricao.statusPlano}}">Status Dinâmico</span>
+</h3>
+
+<hr>
+<h3 th:text="#{detalhes.aluno.infoPlano}">Informações do Plano de Trabalho</h3>
+<p><strong th:text="#{detalhes.aluno.disciplina}">Disciplina:</strong> <span th:text="${inscricao.nomeDisciplina} ?: #{detalhes.aluno.naoEnviado}"></span></p>
+<p><strong th:text="#{detalhes.aluno.codigo}">Código:</strong> <span th:text="${inscricao.codigoDisciplina} ?: #{detalhes.aluno.naoEnviado}"></span></p>
+<p><strong th:text="#{detalhes.aluno.curso}">Curso:</strong> <span th:text="${inscricao.cursoDisciplina} ?: #{detalhes.aluno.naoEnviado}"></span></p>
+<p><strong th:text="#{detalhes.aluno.supervisor}">Supervisor:</strong> <span th:text="${inscricao.supervisor != null ? inscricao.supervisor.nome : #messages.msg('detalhes.aluno.naoAtribuido')}"></span></p>
+<p><strong th:text="#{detalhes.aluno.parecer}">Parecer do Supervisor:</strong> <span th:text="${inscricao.parecerPlano} ?: #{detalhes.aluno.naoAvaliado}"></span></p>
+
+<hr>
+<h3 th:text="#{detalhes.aluno.infoDoc}">Informações de Documentação (Ministrar Aulas)</h3>
+<p><strong th:text="#{detalhes.aluno.instituicao}">Instituição:</strong> <span th:text="${inscricao.instituicaoMinistrou} ?: #{detalhes.aluno.naoPreenchido}"></span></p>
+<p><strong th:text="#{detalhes.aluno.disciplinaMinistrada}">Disciplina Ministrada:</strong> <span th:text="${inscricao.nomeDisciplinaMinistrada} ?: #{detalhes.aluno.naoPreenchido}"></span></p>
+<p><strong th:text="#{detalhes.aluno.cargaHoraria}">Carga Horária:</strong> <span th:text="${inscricao.cargaHorariaDisciplina} ?: #{detalhes.aluno.naoPreenchido}"></span></p>
+
+<br><hr>
+<a th:href="@{/responsavel/oferta/{id}/detalhes(id=${inscricao.oferta.id})}"><button th:text="#{detalhes.aluno.btnVoltarOferta}">Voltar para a Oferta</button></a>
+</body>
+</html>

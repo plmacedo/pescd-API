@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{detalhes.oferta.titulo}">Detalhes da Oferta</title>
+</head>
+<body>
+<h1><span th:text="#{detalhes.oferta.titulo}">Detalhes da Oferta:</span> <span th:text="${oferta.nome}"></span></h1>
+<p><span th:text="#{detalhes.oferta.semestre}">Semestre:</span> <span th:text="${oferta.semestre}"></span></p>
+<p><span th:text="#{detalhes.oferta.status}">Status:</span> <span th:text="#{${oferta.status}}"></span></p>
+
+<hr>
+<h3 th:text="#{detalhes.oferta.alunosInscritos}">Alunos Inscritos</h3>
+
+<div th:if="${#lists.isEmpty(inscricoes)}">
+    <p th:text="#{detalhes.oferta.semAlunos}">Não há alunos inscritos nesta oferta.</p>
+</div>
+
+<ul th:if="${!#lists.isEmpty(inscricoes)}">
+    <li th:each="inscricao : ${inscricoes}">
+        <strong th:text="#{detalhes.oferta.aluno}">Aluno:</strong> <span th:text="${inscricao.aluno.nome}"></span> -
+        <strong th:text="#{detalhes.oferta.statusAluno}">Status:</strong>
+        <span th:text="#{${'StatusPlano.' + inscricao.statusPlano}}">Status Dinâmico</span>
+
+        <a th:href="@{/secretario/inscricao/{id}/detalhes(id=${inscricao.id})}">
+            <button type="button" th:text="#{detalhes.oferta.btnDetalhesAluno}">Ver Detalhes do Aluno</button>
+        </a>
+    </li>
+</ul>
+
+<br><hr>
+<a th:href="@{/secretario/main}"><button th:text="#{geral.voltar}">Voltar</button></a>
+</body>
+</html>

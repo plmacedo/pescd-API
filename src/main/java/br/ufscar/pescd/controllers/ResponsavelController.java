@@ -18,6 +18,12 @@ public class ResponsavelController {
     @Autowired
     private OfertaService ofertaService;
 
+    @Autowired
+    private br.ufscar.pescd.repositories.InscricaoRepository inscricaoRepository;
+
+    @Autowired
+    private br.ufscar.pescd.services.InscricaoService inscricaoService;
+
     @GetMapping("/main")
     public String main(Model model) {
 
@@ -41,5 +47,20 @@ public class ResponsavelController {
         ofertaService.salvar(oferta);
 
         return "redirect:/responsavel/main";
+    }
+
+    @GetMapping("/oferta/{id}/detalhes")
+    public String detalhesOfertaResponsavel(@PathVariable Long id, Model model) {
+        Oferta oferta = ofertaService.buscarPorId(id);
+        model.addAttribute("oferta", oferta);
+        model.addAttribute("inscricoes", inscricaoRepository.findByOfertaId(id));
+        return "responsavel/detalhes_oferta";
+    }
+
+    @GetMapping("/inscricao/{id}/detalhes")
+    public String detalhesAlunoResponsavel(@PathVariable Long id, Model model) {
+        br.ufscar.pescd.model.Inscricao inscricao = inscricaoService.buscarPorID(id);
+        model.addAttribute("inscricao", inscricao);
+        return "responsavel/detalhes_aluno";
     }
 }
