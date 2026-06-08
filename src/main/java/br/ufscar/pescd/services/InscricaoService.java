@@ -129,6 +129,8 @@ public class InscricaoService {
 
         // o sistema registra o timestamp da operação
         inscricao.setDataAprovacaoPlano(java.time.LocalDateTime.now());
+    }
+
     public void enviarRelatorioFinal(Long inscricaoID, RelatorioFinalFormDTO dto) throws IOException {
         Inscricao inscricao = buscarPorID(inscricaoID);
 
