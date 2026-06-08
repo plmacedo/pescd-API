@@ -1,5 +1,6 @@
 package br.ufscar.pescd.services;
 
+import br.ufscar.pescd.dto.ConcluirRelatorioFormDTO;
 import br.ufscar.pescd.dto.RelatorioFinalFormDTO;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.io.IOException;
@@ -158,6 +160,18 @@ public class InscricaoService {
         inscricao.setStatusPlano(StatusPlano.RELATORIO_APROVADO_SUPERVISOR);
 
         inscricao.setDataAprovacaoRelatorio(java.time.LocalDateTime.now());
+
+        inscricaoRepository.save(inscricao);
+    }
+
+    public void concluirRelatorioResponsavel(ConcluirRelatorioFormDTO dto) {
+        Inscricao inscricao = buscarPorID(dto.getInscricaoID());
+
+        inscricao.setParecerResponsavel(dto.getParecer());
+        inscricao.setFrequencia(dto.getFrequencia());
+        inscricao.setNotaFinal(dto.getNota());
+
+        inscricao.setStatusPlano(StatusPlano.CONCLUIDO_PELO_RESPONSAVEL);
 
         inscricaoRepository.save(inscricao);
     }

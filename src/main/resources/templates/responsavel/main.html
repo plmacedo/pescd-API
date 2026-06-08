@@ -1,76 +1,40 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <title th:text="#{resp.titulo}">
-        Página do Professor Responsável
-    </title>
-</head>
-
-<body>
-
-<h1 th:text="#{resp.titulo}">
-    PAGINA DO PROFESSOR RESPONSAVEL
-</h1>
+<h1 th:text="#{resp.titulo}">PAGINA DO PROFESSOR RESPONSAVEL</h1>
 
 <ul>
     <li th:each="oferta : ${ofertas}">
-
         <b th:text="${oferta.nome}"></b>
+        - <span th:text="#{secr1.prof}">Professor:</span> <span th:text="${oferta.prof.nome}"></span>
+        - <span th:text="#{secr1.semestre}">Semestre:</span> <span th:text="${oferta.semestre}"></span>
+        - <span th:text="#{secr1.inicio}">Início:</span> <span th:text="${oferta.inicio}"></span>
+        - <span th:text="#{secr1.fim}">Fim:</span> <span th:text="${oferta.fim}"></span>
+        - <span th:text="#{secr1.matriculados}">Alunos Matriculados:</span> <span th:text="${oferta.matriculados}"></span>
+        - <span th:text="#{detalhes.oferta.status}">Status:</span> <span th:text="#{${oferta.status}}"></span>
 
-        -
-        Professor:
-        <span th:text="${oferta.prof.nome}"></span>
+        <div th:if="${!#lists.isEmpty(oferta.inscricoes)}">
+            <h4 style="margin-bottom: 5px;" th:text="#{pr01.alunosNaOferta}">Alunos na Oferta:</h4>
+            <ul>
+                <li th:each="inscricao : ${oferta.inscricoes}">
+                    <span th:text="${inscricao.aluno.nome}"></span>
+                    - <span th:text="#{geral.status}">Status:</span> <span th:text="#{${inscricao.statusPlano}}"></span>
 
-        -
-        Semestre:
-        <span th:text="${oferta.semestre}"></span>
-
-        -
-        Início:
-        <span th:text="${oferta.inicio}"></span>
-
-        -
-        Fim:
-        <span th:text="${oferta.fim}"></span>
-
-        -
-        Alunos Matriculados:
-        <span th:text="${oferta.matriculados}"></span>
-
-        -
-        Status:
-        <span th:text="#{${oferta.status}}"></span>
-
+                    <a th:if="${inscricao.statusPlano != null and inscricao.statusPlano.name() == 'RELATORIO_APROVADO_SUPERVISOR'}"
+                       th:href="@{/responsavel/concluir-relatorio/{id}(id=${inscricao.id})}">
+                        <button type="button" style="margin-left: 10px; background-color: #4CAF50; color: white;" th:text="#{pr01.btnAprovarRelatorio}">
+                            Aprovar Relatório
+                        </button>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <br>
         <a th:href="@{/responsavel/oferta/{id}/detalhes(id=${oferta.id})}">
-            <button type="button" th:text="#{geral.verDetalhes}">
-                Ver Detalhes
-            </button>
+            <button type="button" th:text="#{geral.verDetalhes}">Ver Detalhes</button>
         </a>
 
         <form th:if="${oferta.status == 'Em andamento'}"
               th:action="@{/responsavel/finalizar/{id}(id=${oferta.id})}"
-              method="post"
-              style="display:inline">
-
-            <button type="submit">
-                Solicitar Encerramento
-            </button>
-
+              method="post" style="display:inline">
+            <button type="submit" th:text="#{resp.solicitarEncerramento}">Solicitar Encerramento</button>
         </form>
-
     </li>
 </ul>
-
-<br>
-<hr>
-
-<a th:href="@{/login}">
-    <button type="button" th:text="#{geral.voltarLogin}">
-        Voltar para a tela de Login
-    </button>
-</a>
-
-</body>
-</html>

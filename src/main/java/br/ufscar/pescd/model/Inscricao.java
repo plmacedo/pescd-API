@@ -70,6 +70,15 @@ public class Inscricao {
     @Column(name = "curso_disciplina")
     private String cursoDisciplina;
 
+    @Column(columnDefinition = "TEXT")
+    private String parecerResponsavel;
+
+    private Integer frequenciaFinal;
+
+    private String notaFinal;
+
+    private LocalDateTime dataConclusaoResponsavel;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supervisor_id")
     private Usuario supervisor;
@@ -194,4 +203,36 @@ public class Inscricao {
 
     public LocalDateTime getDataAprovacaoRelatorio() { return dataAprovacaoRelatorio; }
     public void setDataAprovacaoRelatorio(LocalDateTime dataAprovacaoRelatorio) { this.dataAprovacaoRelatorio = dataAprovacaoRelatorio; }
+
+    public String getParecerResponsavel() {
+        return parecerResponsavel;
+    }
+
+    public void setParecerResponsavel(String parecerResponsavel) {
+        this.parecerResponsavel = parecerResponsavel;
+    }
+
+    public Integer getFrequenciaFinal() {
+        return frequenciaFinal;
+    }
+
+    public void setFrequenciaFinal(Integer frequenciaFinal) {
+        this.frequenciaFinal = frequenciaFinal;
+    }
+
+    public String getNotaFinal() {
+        return notaFinal;
+    }
+
+    public void setNotaFinal(String notaFinal) {
+        this.notaFinal = notaFinal;
+    }
+
+    public LocalDateTime getDataConclusaoResponsavel() {
+        return dataConclusaoResponsavel;
+    }
+
+    public void setDataConclusaoResponsavel(LocalDateTime dataConclusaoResponsavel) {
+        this.dataConclusaoResponsavel = dataConclusaoResponsavel;
+    }
 }

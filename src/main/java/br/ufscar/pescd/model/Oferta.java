@@ -3,6 +3,7 @@ package br.ufscar.pescd.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "oferta")
@@ -27,7 +28,8 @@ public class Oferta {
     @Column(nullable = false)
     private String semestre;
 
-
+    @OneToMany(mappedBy = "oferta")
+    private List<Inscricao> inscricoes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "criador_id", nullable = false)
@@ -147,4 +149,12 @@ public class Oferta {
     }
 
     public void incrementaNroEstudantes(){ this.matriculados = this.matriculados + 1;}
+
+    public List<Inscricao> getInscricoes() {
+        return inscricoes;
+    }
+
+    public void setInscricoes(List<Inscricao> inscricoes) {
+        this.inscricoes = inscricoes;
+    }
 }
