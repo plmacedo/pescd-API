@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="#{responsavel.analisardoc.titulo.aba}">Analisar Documentação</title>
+</head>
+<body>
+<h1 th:text="#{responsavel.analisardoc.titulo}">Analisar Documentação de Ensino</h1>
+
+<div>
+  <h3 th:text="#{responsavel.analisardoc.dadosaluno}">Dados do Aluno</h3>
+  <p><strong th:text="#{responsavel.analisardoc.nome}">Nome:</strong> <span th:text="${inscricao.aluno.nome}"></span></p>
+
+  <h3 th:text="#{responsavel.analisardoc.docenviada}">Documentação Enviada</h3>
+  <p><strong th:text="#{responsavel.analisardoc.arquivo}">Arquivo:</strong>
+    <a th:href="@{/download/documentacao/{id}(id=${inscricao.id})}" target="_blank" th:text="#{responsavel.analisardoc.baixardoc}">Baixar Documentação</a>
+  </p>
+</div>
+
+<form th:action="@{/responsavel/analisarDocumentacao/{id}(id=${inscricao.id})}" th:object="${analisarDocumentacaoDTO}" method="post">
+
+  <div>
+    <label for="parecer" th:text="#{responsavel.analisardoc.label.parecer}">Parecer:</label>
+    <textarea id="parecer" th:field="*{parecer}" required></textarea>
+    <span th:if="${#fields.hasErrors('parecer')}" th:errors="*{parecer}" style="color:red;"></span>
+  </div>
+
+  <div>
+    <label for="frequencia" th:text="#{responsavel.analisardoc.label.frequencia}">Indicador de Frequência (0 a 100%):</label>
+    <input type="number" id="frequencia" th:field="*{frequencia}" min="0" max="100" required/>
+    <span th:if="${#fields.hasErrors('frequencia')}" th:errors="*{frequencia}" style="color:red;"></span>
+  </div>
+
+  <div>
+    <label for="nota" th:text="#{responsavel.analisardoc.label.nota}">Sugestão de Nota:</label>
+    <select id="nota" th:field="*{nota}" required>
+      <option value="" th:text="#{responsavel.analisardoc.selecione}">Selecione...</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="E">E</option>
+    </select>
+    <span th:if="${#fields.hasErrors('nota')}" th:errors="*{nota}" style="color:red;"></span>
+  </div>
+
+  <div>
+    <button type="submit" th:text="#{responsavel.analisardoc.botao.finalizar}">Finalizar</button>
+    <a th:href="@{/responsavel/main}" class="btn" th:text="#{responsavel.analisardoc.botao.cancelar}">Cancelar</a>
+  </div>
+</form>
+</body>
+</html>

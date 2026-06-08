@@ -1,14 +1,11 @@
 package br.ufscar.pescd.services;
 
-import br.ufscar.pescd.dto.ConcluirRelatorioFormDTO;
-import br.ufscar.pescd.dto.RelatorioFinalFormDTO;
+import br.ufscar.pescd.dto.*;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.model.StatusPlano;
-import br.ufscar.pescd.dto.PlanoTrabalhoFormDTO;
 import br.ufscar.pescd.repositories.InscricaoRepository;
-import br.ufscar.pescd.dto.DocumentacaoFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -228,5 +225,26 @@ public class InscricaoService {
                 }
             }
         }
+    }
+
+    public void analisarDocumentacao(Long idInscricao, AnalisarDocumentacaoFormDTO dto) {
+        Inscricao inscricao = inscricaoRepository.findById(idInscricao)
+                .orElseThrow(() -> new IllegalArgumentException("Inscrição não encontrada."));
+
+        // Verifica se o status do aluno é "documentação enviada"
+        if (inscricao.getStatusPlano() != StatusPlano.DOCUMENTACAO_ENVIADA) {
+            throw new IllegalStateException("Status inválido para analisar documentação.");
+        }
+
+        // Atualiza os dados com base no formulário
+        inscricao.setParecerResponsavel(dto.getParecer()); // Verifique se o nome exato do campo na sua entidade Inscricao é esse
+        inscricao.setFrequenciaFinal(dto.getFrequencia());
+        inscricao.setNotaFinal(dto.getNota());
+
+        // Atualiza o status e registra o timestamp da conclusão
+        inscricao.setStatusPlano(StatusPlano.CONCLUIDO_PELO_RESPONSAVEL);
+        inscricao.setDataConclusaoResponsavel(LocalDateTime.now());
+
+        inscricaoRepository.save(inscricao);
     }
 }

@@ -1,8 +1,10 @@
 package br.ufscar.pescd.controllers;
 
+import br.ufscar.pescd.dto.AnalisarDocumentacaoFormDTO;
 import br.ufscar.pescd.dto.ConcluirRelatorioFormDTO;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
+import br.ufscar.pescd.model.StatusPlano;
 import br.ufscar.pescd.services.OfertaService;
 
 import jakarta.validation.Valid;
@@ -93,5 +95,39 @@ public class ResponsavelController {
 
         inscricaoService.concluirRelatorioResponsavel(form);
         return "redirect:/responsavel/main?sucesso=relatorio_concluido";
+    }
+
+    @GetMapping("/analisarDocumentacao/{id}")
+    public String exibirFormularioAnaliseDocumentacao(@PathVariable("id") Long id, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+
+        // Verifica a pré-condição: status deve ser "documentação enviada"
+        if (inscricao.getStatusPlano() != StatusPlano.DOCUMENTACAO_ENVIADA) {
+            return "redirect:/responsavel/main";
+        }
+
+        model.addAttribute("inscricao", inscricao);
+        model.addAttribute("analisarDocumentacaoDTO", new AnalisarDocumentacaoFormDTO());
+
+        return "responsavel/analisar_documentacao";
+    }
+
+    @PostMapping("/analisarDocumentacao/{id}")
+    public String processarAnaliseDocumentacao(
+            @PathVariable("id") Long id,
+            @Valid @ModelAttribute("analisarDocumentacaoDTO") AnalisarDocumentacaoFormDTO dto,
+            BindingResult result,
+            Model model) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("inscricao", inscricaoService.buscarPorID(id));
+            return "responsavel/analisar_documentacao";
+        }
+
+        inscricaoService.analisarDocumentacao(id, dto);
+
+        // Após finalizar, redireciona de volta para os detalhes da oferta
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+        return "redirect:/responsavel/main";
     }
 }

@@ -31,6 +31,12 @@
                     <span th:text="${inscricao.aluno.nome}"></span>
                     - <span th:text="#{geral.status}">Status:</span> <span th:text="#{${inscricao.statusPlano}}"></span>
 
+                    <a th:if="${inscricao.statusPlano.name() == 'DOCUMENTACAO_ENVIADA'}"
+                       th:href="@{/responsavel/analisarDocumentacao/{id}(id=${inscricao.id})}"
+                       <button type="button" style="margin-left: 10px; background-color: #4CAF50; color: white;" th:text="#{pr02.btnAprovarDocumentacao}">
+                           Aprovar Documentação
+                       </button>
+
                     <a th:if="${inscricao.statusPlano != null and inscricao.statusPlano.name() == 'RELATORIO_APROVADO_SUPERVISOR'}"
                        th:href="@{/responsavel/concluir-relatorio/{id}(id=${inscricao.id})}">
                         <button type="button" style="margin-left: 10px; background-color: #4CAF50; color: white;" th:text="#{pr01.btnAprovarRelatorio}">
