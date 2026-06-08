@@ -1,29 +1,56 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="#{admin.titulo}"></title>
+    <meta charset="UTF-8">
+    <title th:text="#{admin.titulo}">Administração</title>
 </head>
 <body>
 <h1 th:text="#{admin.titulo}">PAGINA DO ADMINISTRADOR</h1>
 
-<form th:action="@{/administrador/alterarMensagem}" method="post">
+<hr>
 
+<h2 th:text="#{admin.gerenciamento.usuarios}">Gerenciamento de Usuários</h2>
+<a th:href="@{/administrador/novoUsuario}">
+    <button type="button" th:text="#{admin.btn.novoUsuario}">Novo Usuário</button>
+</a>
+<br><br>
+
+<table border="1" style="width: 100%; text-align: left;">
+    <thead>
+    <tr>
+        <th th:text="#{admin.tabela.id}">ID</th>
+        <th th:text="#{admin.tabela.nome}">Nome</th>
+        <th th:text="#{admin.tabela.username}">Username</th>
+        <th th:text="#{admin.tabela.cargos}">Cargos</th>
+        <th th:text="#{admin.tabela.acoes}">Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${usuarios}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.nome}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${#strings.listJoin(user.cargos, ', ')}"></td>
+        <td>
+            <a th:href="@{/administrador/editarUsuario/{id}(id=${user.id})}" th:text="#{admin.acao.editar}">Editar</a> |
+            <a th:href="@{/administrador/excluirUsuario/{id}(id=${user.id})}"
+               th:attr="onclick=|return confirm('#{admin.confirmacao.exclusao}')|"
+               th:text="#{admin.acao.excluir}">Excluir</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br>
+<hr>
+
+<h2 th:text="#{admin.titulo.mensagemSecretaria}">Mensagem da Secretaria</h2>
+<form th:action="@{/administrador/alterarMensagem}" method="post">
     <label th:text="#{admin.msgParaSecretario}">Mensagem exibida ao secretário:</label>
     <br><br>
-
-    <textarea
-            name="texto"
-            rows="4"
-            cols="60"
-            th:text="${mensagem}">
-    </textarea>
-
+    <textarea name="texto" rows="4" cols="60" th:text="${mensagem}"></textarea>
     <br><br>
-
-    <button type="submit" th:text="#{admin.salvar}">
-        Salvar
-    </button>
-
+    <button type="submit" th:text="#{admin.salvar}">Salvar</button>
 </form>
 
 <br>
