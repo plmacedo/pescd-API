@@ -141,6 +141,7 @@ public class InscricaoService {
 
         // Atualiza status para indicar que o relatório foi enviado
         inscricao.setStatusPlano(StatusPlano.RELATORIO_ENVIADO);
+        inscricao.setFrequencia(dto.getFrequencia());
 
         inscricaoRepository.save(inscricao);
     }

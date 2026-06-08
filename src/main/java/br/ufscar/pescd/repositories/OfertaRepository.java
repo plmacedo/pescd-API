@@ -16,4 +16,5 @@ public interface OfertaRepository extends JpaRepository<Oferta, Long> {
     // O "LEFT JOIN FETCH" obriga o Spring a buscar a lista de inscrições de imediato
     @Query("SELECT DISTINCT o FROM Oferta o LEFT JOIN FETCH o.inscricoes ORDER BY o.fim DESC")
     List<Oferta> buscarTodasComInscricoesOrdenadoPorFim();
+    List<Oferta> findByNome(String nome);
 }
