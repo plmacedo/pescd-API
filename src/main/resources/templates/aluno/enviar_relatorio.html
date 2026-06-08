@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{aluno.enviarRelatorio.tituloPg}">Enviar Relatório Final</title>
+</head>
+<body>
+
+<h2 th:text="#{aluno.enviarRelatorio.titulo}">Enviar Relatório Final do Estágio</h2>
+
+<p>
+    <span th:text="#{aluno.enviarRelatorio.oferta}">Oferta:</span>
+    <span th:text="${inscricao.oferta.nome}"></span>
+</p>
+
+<form th:action="@{/aluno/enviarRelatorio}" th:object="${relatorioDTO}" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" th:field="*{inscricaoID}" />
+
+    <div>
+        <label th:text="#{aluno.enviarRelatorio.arquivo}">Arquivo do Relatório Final (PDF, Máx: 5MB):</label><br>
+        <input type="file" th:field="*{arquivo}" accept="application/pdf" />
+        <span th:if="${#fields.hasErrors('arquivo')}" th:errors="*{arquivo}" style="color:red;">Texto de Fallback</span>
+    </div>
+
+    <br>
+    <div>
+        <button type="submit" th:text="#{aluno.enviarRelatorio.botao}">Enviar Relatório Final</button>
+        <a th:href="@{/aluno/main}" th:text="#{aluno.enviarRelatorio.cancelar}">Cancelar</a>
+    </div>
+
+</form>
+
+</body>
+</html>

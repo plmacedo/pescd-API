@@ -44,6 +44,13 @@
             <button type="button" th:text="#{aluno.btnEnviarPlano}">Enviar Plano de Trabalho</button>
         </a>
 
+        <a th:if="${inscricao.statusPlano.name() == 'DOCUMENTACAO_ENVIADA'}"
+           th:href="@{/aluno/enviarRelatorio/{id}(id=${inscricao.id})}"
+           class="btn btn-primary"
+           th:text="#{aluno.main.botaoRelatorio}">
+            Enviar Relatório Final
+        </a>
+
         <span th:if="${inscricao.statusPlano.name() == 'ENVIADO'}"
               th:text="#{aluno.planoEnviado}"
               style="color: green; display: block; margin-top: 10px;">

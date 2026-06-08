@@ -6,5 +6,6 @@ public enum StatusPlano {
     ENVIADO,
     APROVADO,
     REJEITADO,
-    DOCUMENTACAO_ENVIADA // RN-4 do AL.03
+    DOCUMENTACAO_ENVIADA,
+    RELATORIO_ENVIADO
 }
