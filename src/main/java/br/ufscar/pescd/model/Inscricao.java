@@ -27,6 +27,22 @@ public class Inscricao {
     @Column(nullable = false)
     private StatusPlano statusPlano = StatusPlano.PENDENTE;
 
+    @Column(name = "instituicao_ministrou")
+    private String instituicaoMinistrou;
+
+    @Column(name = "nome_disciplina_ministrada")
+    private String nomeDisciplinaMinistrada;
+
+    @Column(name = "curso_disciplina_ministrada")
+    private String cursoDisciplinaMinistrada;
+
+    @Column(name = "carga_horaria_disciplina")
+    private Integer cargaHorariaDisciplina;
+
+    @Lob // armazenar arquivos binários grandes no banco de dados
+    @Column(name = "arquivo_documentacao", length = 5242880) // máx de 5MB
+    private byte[] arquivoDocumentacao;
+
 
     // Construtor vazio (obrigatório para o Spring/Hibernate funcionar)
     public Inscricao() {}
@@ -66,4 +82,45 @@ public class Inscricao {
     public void setPlanoDeTrabalho(String PlanoDeTrabalho) {this.PlanoDeTrabalho = PlanoDeTrabalho; }
 
     public void setStatusPlano(StatusPlano statusPlano) {this.statusPlano = statusPlano; }
+
+
+    public String getInstituicaoMinistrou() {
+        return instituicaoMinistrou;
+    }
+
+    public String getNomeDisciplinaMinistrada() {
+        return nomeDisciplinaMinistrada;
+    }
+
+    public String getCursoDisciplinaMinistrada() {
+        return cursoDisciplinaMinistrada;
+    }
+
+    public Integer getCargaHorariaDisciplina() {
+        return cargaHorariaDisciplina;
+    }
+
+    public byte[] getArquivoDocumentacao() {
+        return arquivoDocumentacao;
+    }
+
+    public void setInstituicaoMinistrou(String instituicaoMinistrou) {
+        this.instituicaoMinistrou = instituicaoMinistrou;
+    }
+
+    public void setNomeDisciplinaMinistrada(String nomeDisciplinaMinistrada) {
+        this.nomeDisciplinaMinistrada = nomeDisciplinaMinistrada;
+    }
+
+    public void setCursoDisciplinaMinistrada(String cursoDisciplinaMinistrada) {
+        this.cursoDisciplinaMinistrada = cursoDisciplinaMinistrada;
+    }
+
+    public void setCargaHorariaDisciplina(Integer cargaHorariaDisciplina) {
+        this.cargaHorariaDisciplina = cargaHorariaDisciplina;
+    }
+
+    public void setArquivoDocumentacao(byte[] arquivoDocumentacao) {
+        this.arquivoDocumentacao = arquivoDocumentacao;
+    }
 }

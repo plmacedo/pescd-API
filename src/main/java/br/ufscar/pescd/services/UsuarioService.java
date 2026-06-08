@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.List;
 
 @Service
-public class UsuarioService {
+public class   UsuarioService {
 
     @Autowired
     private UsuarioRepository repository;

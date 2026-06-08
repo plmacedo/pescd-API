@@ -5,10 +5,12 @@ import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.model.StatusPlano;
 import br.ufscar.pescd.repositories.InscricaoRepository;
+import br.ufscar.pescd.dto.DocumentacaoFormDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -56,6 +58,11 @@ public class InscricaoService {
         inscricaoRepository.save(inscricao);
     }
 
+    // Retorna a lista completa de inscrições do aluno, sem filtrá-las apenas por ofertas
+    public List<Inscricao> buscarInscricoesPorAluno(Long alunoId) {
+        return inscricaoRepository.findByAlunoId(alunoId);
+    }
+
     // inscreve aluno ja existente no BD
     public void inscreverAluno(Long ofertaId, Long alunoId) {
         Oferta oferta = ofertaService.buscarPorId(ofertaId);
@@ -68,6 +75,26 @@ public class InscricaoService {
             oferta.incrementaNroEstudantes();
             inscricaoRepository.save(novaInscricao);
         }
+    }
+
+    public void enviarDocumentacao(Long inscricaoID, DocumentacaoFormDTO dto) throws IOException {
+        Inscricao inscricao = buscarPorID(inscricaoID);
+
+        // copiando os dados do DTO para a Entidade
+        inscricao.setInstituicaoMinistrou(dto.getInstituicao());
+        inscricao.setNomeDisciplinaMinistrada(dto.getNomeDisciplina());
+        inscricao.setCursoDisciplinaMinistrada(dto.getCursoDisciplina());
+        inscricao.setCargaHorariaDisciplina(dto.getCargaHoraria());
+
+        // extraindo os bytes do MultipartFile
+        if (dto.getArquivo() != null && !dto.getArquivo().isEmpty()) {
+            inscricao.setArquivoDocumentacao(dto.getArquivo().getBytes());
+        }
+
+        // RN-4
+        inscricao.setStatusPlano(StatusPlano.DOCUMENTACAO_ENVIADA);
+
+        inscricaoRepository.save(inscricao);
     }
 
     // adiciona via csv

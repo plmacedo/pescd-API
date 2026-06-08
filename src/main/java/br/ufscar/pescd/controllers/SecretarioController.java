@@ -5,11 +5,13 @@ import br.ufscar.pescd.dto.OfertaFormDTO;
 import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
+import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.repositories.FraseRepository;
 import br.ufscar.pescd.repositories.InscricaoRepository;
 import br.ufscar.pescd.services.InscricaoService;
 import br.ufscar.pescd.services.OfertaService;
 import br.ufscar.pescd.services.UsuarioService;
+import br.ufscar.pescd.dto.DocumentacaoFormDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -186,6 +189,57 @@ public class SecretarioController {
             return "redirect:/secretario/oferta/" + id + "/alunos?erro=processamento";
         }
 
+    }
+
+    @GetMapping("/enviarDocumentacao/{idInscricao}")
+    public String exibirFormularioDocumentacao(@PathVariable Long idInscricao, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(idInscricao);
+
+        // A regra diz que o status do aluno nesta oferta deve ser "não enviado" (PENDENTE no sistema)
+        if(inscricao.getStatusPlano() != br.ufscar.pescd.model.StatusPlano.PENDENTE) {
+            return "redirect:/aluno/main?erroStatus";
+        }
+
+        DocumentacaoFormDTO dto = new DocumentacaoFormDTO();
+        dto.setInscricaoID(inscricao.getId());
+
+        model.addAttribute("inscricao", inscricao);
+        model.addAttribute("documentacaoDTO", dto);
+
+        return "aluno/enviar_documentacao";
+    }
+
+    @PostMapping("/enviarDocumentacao")
+    public String processarEnvioDocumentacao(@Valid @ModelAttribute("documentacaoDTO") DocumentacaoFormDTO dto, BindingResult result, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(dto.getInscricaoID());
+
+        // RN-3: Validação manual se o arquivo é um PDF e se respeita o limite de 5MB
+        if (dto.getArquivo() == null || dto.getArquivo().isEmpty()) {
+            result.rejectValue("arquivo", "error.documentacao", "O arquivo com a documentação comprobatória é obrigatório.");
+        } else {
+            if (!"application/pdf".equals(dto.getArquivo().getContentType())) {
+                result.rejectValue("arquivo", "error.documentacao", "O arquivo deve ser obrigatóriamente no formato PDF.");
+            }
+            if (dto.getArquivo().getSize() > 5242880) { // 5MB convertidos em bytes
+                result.rejectValue("arquivo", "error.documentacao", "O arquivo deve ter no máximo 5MB.");
+            }
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("inscricao", inscricao);
+            return "aluno/enviar_documentacao"; // Retorna para a tela exibindo os erros
+        }
+
+        try {
+            inscricaoService.enviarDocumentacao(dto.getInscricaoID(), dto);
+        } catch (IOException e) {
+            model.addAttribute("erro", "Erro inesperado ao salvar o arquivo.");
+            model.addAttribute("inscricao", inscricao);
+            return "aluno/enviar_documentacao";
+        }
+
+        // RN-4: Envio com sucesso
+        return "redirect:/aluno/main?sucessoDocumentacao";
     }
 
 }
