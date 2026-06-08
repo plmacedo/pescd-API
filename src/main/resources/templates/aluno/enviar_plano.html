@@ -12,19 +12,48 @@
     <span th:text="${inscricao.oferta.nome}"></span>
 </p>
 
-<form th:action="@{/aluno/enviarPlano}" th:object="${planoDTO}" method="post">
+<form th:action="@{/aluno/enviarPlano}" th:object="${planoDTO}" method="post" enctype="multipart/form-data">
 
-    <input type="hidden" th:field="*{inscricaoId}" />
+    <input type="hidden" th:field="*{inscricaoID}" />
 
     <div>
-        <label for="planoDeTrabalho" th:text="#{aluno.enviarPlano.instrucao}">Escreva seu Plano de Trabalho abaixo:</label>
-        <br>
-        <textarea id="planoDeTrabalho" th:field="*{planoDeTrabalho}" rows="10" cols="50"></textarea>
-
-        <span th:if="${#fields.hasErrors('planoDeTrabalho')}" th:errors="*{planoDeTrabalho}" style="color:red;">Erro</span>
+        <label th:text="#{aluno.enviarPlano.codigoDisciplina}">Código da Disciplina:</label><br>
+        <input type="text" th:field="*{codigoDisciplina}" />
+        <span th:if="${#fields.hasErrors('codigoDisciplina')}" th:errors="*{codigoDisciplina}" style="color:red;">Erro</span>
     </div>
-
     <br>
+
+    <div>
+        <label th:text="#{aluno.enviarPlano.nomeDisciplina}">Nome da Disciplina:</label><br>
+        <input type="text" th:field="*{nomeDisciplina}" />
+        <span th:if="${#fields.hasErrors('nomeDisciplina')}" th:errors="*{nomeDisciplina}" style="color:red;">Erro</span>
+    </div>
+    <br>
+
+    <div>
+        <label th:text="#{aluno.enviarPlano.cursoDisciplina}">Curso da Disciplina:</label><br>
+        <input type="text" th:field="*{cursoDisciplina}" />
+        <span th:if="${#fields.hasErrors('cursoDisciplina')}" th:errors="*{cursoDisciplina}" style="color:red;">Erro</span>
+    </div>
+    <br>
+
+    <div>
+        <label th:text="#{aluno.enviarPlano.profSupervisor}">Professor Supervisor:</label><br>
+        <select th:field="*{professorSupervisorId}">
+            <option value="" disabled selected>Selecione um professor</option>
+            <option th:each="prof : ${professores}" th:value="${prof.id}" th:text="${prof.nome}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('professorSupervisorId')}" th:errors="*{professorSupervisorId}" style="color:red;">Erro</span>
+    </div>
+    <br>
+
+    <div>
+        <label th:text="#{aluno.enviarPlano.arquivo}">Arquivo com o Plano (apenas PDF, máx 5MB):</label><br>
+        <input type="file" th:field="*{arquivoPlano}" accept="application/pdf" />
+        <span th:if="${#fields.hasErrors('arquivoPlano')}" th:errors="*{arquivoPlano}" style="color:red;">Erro</span>
+    </div>
+    <br>
+
     <button type="submit" th:text="#{aluno.enviarPlano.btnEnviar}">Enviar para Aprovação</button>
     <a th:href="@{/aluno/main}">
         <button type="button" th:text="#{aluno.enviarPlano.btnCancelar}">Cancelar</button>

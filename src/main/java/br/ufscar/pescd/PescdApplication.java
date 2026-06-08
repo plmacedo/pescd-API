@@ -99,7 +99,7 @@ public class PescdApplication {
 		Usuario ProfMarcus = new Usuario(
 				null,
 				"Marcus Vinicius ",
-				List.of("ROLE_RESPONSAVEL"),
+				List.of("ROLE_SUPERVISOR"),
 				"warcus",
 				"123"
 				);

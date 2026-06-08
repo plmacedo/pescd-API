@@ -4,10 +4,10 @@
     <title th:text="#{aluno.titulo}"></title>
 </head>
 <body>
-<h1 th:text="#{aluno.h1}">Ofertas em que voce esta inscrito: </h1>
+<h1 th:text="#{aluno.h1}">Ofertas em que você está inscrito: </h1>
 
 <div th:if="${#lists.isEmpty(inscricoes)}">
-    <p th:text="#{aluno.naoMatriculado}"> Vá estudar!!! Voce nao esta matriculado em nenhuma oferta</p>
+    <p th:text="#{aluno.naoMatriculado}"> Vá estudar!!! Você não está matriculado em nenhuma oferta</p>
 </div>
 
 <ul th:unless="${#lists.isEmpty(inscricoes)}">
@@ -44,5 +44,34 @@
     <button type="button" th:text="#{geral.voltarLogin}">Voltar para a tela de Login</button>
 </a>
 
+        -
+        <span>Status da Oferta:</span> <span th:text="#{${inscricao.oferta.status}}"></span>
+
+        <br><br>
+
+        <span th:text="#{aluno.statusOferta}">Status da Oferta:</span>
+
+        <br>
+
+        <a th:if="${inscricao.oferta.status == 'Em andamento' && inscricao.statusPlano.name() == 'PENDENTE'}"
+           th:href="@{/aluno/enviarPlano/{id}(id=${inscricao.id})}">
+            <button type="button" th:text="#{aluno.btnEnviarPlano}">Enviar Plano de Trabalho</button>
+        </a>
+
+
+        <span th:if="${inscricao.statusPlano.name() == 'ENVIADO'}"
+              th:text="#{aluno.planoEnviado}"
+              style="color: green; display: block; margin-top: 10px;">
+        </span>
+
+        <br>
+        <hr>
+    </li>
+</ul>
+
+<br>
+<a th:href="@{/login}">
+    <button type="button" th:text="#{geral.voltarLogin}">Voltar para a tela de Login</button>
+</a>
 </body>
 </html>
