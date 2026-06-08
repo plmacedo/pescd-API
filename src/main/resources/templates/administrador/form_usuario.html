@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${usuario.id == null} ? #{admin.form.titulo.novo} : #{admin.form.titulo.editar}">Gerenciar Usuário</title>
+</head>
+<body>
+
+<h1 th:text="${usuario.id == null} ? ${#messages.msg('admin.form.titulo.novo')} : ${#messages.msg('admin.form.titulo.editar')}">Gerenciar Usuário</h1>
+
+<form th:action="${usuario.id == null ? '/administrador/salvarUsuario' : '/administrador/atualizarUsuario/' + usuario.id}"
+      th:object="${usuario}"
+      method="post">
+
+    <label th:text="#{admin.form.label.nome}">Nome Completo:</label>
+    <br>
+    <input type="text" th:field="*{nome}" required style="width: 300px;"/>
+    <br><br>
+
+    <label th:text="#{admin.form.label.username}">Nome de Usuário (Username):</label>
+    <br>
+    <input type="text" th:field="*{username}" required style="width: 300px;"/>
+    <br><br>
+
+    <label th:text="#{admin.form.label.senha}">Senha:</label>
+    <br>
+    <input type="password" th:field="*{senha}" th:required="${usuario.id == null}" style="width: 300px;"/>
+
+    <span th:if="${usuario.id != null}">
+        <br>
+        <i th:text="#{admin.form.placeholder.senha}">(Deixe em branco se não quiser alterar a senha)</i>
+    </span>
+    <br><br>
+
+    <label th:text="#{admin.form.label.perfis}">Perfis de Acesso (Cargos):</label>
+    <br>
+    <select th:field="*{cargos}" multiple="multiple" style="height: 100px; width: 300px;" required>
+        <option value="ROLE_ADMIN">Administrador</option>
+        <option value="ROLE_SECRETARIO">Secretário(a)</option>
+        <option value="ROLE_ALUNO">Aluno(a)</option>
+        <option value="ROLE_PROFESSOR_RESPONSAVEL">Prof. Responsável</option>
+        <option value="ROLE_PROFESSOR_SUPERVISOR">Prof. Supervisor</option>
+        <option value="ROLE_VISITANTE">Visitante</option>
+    </select>
+    <br>
+    <small th:text="#{admin.form.msg.multipla}"><i>(Segure CTRL para selecionar múltiplos cargos)</i></small>
+    <br><br>
+
+    <button type="submit" th:text="#{admin.form.btn.salvar}">Salvar Usuário</button>
+    <a th:href="@{/administrador/main}">
+        <button type="button" th:text="#{admin.form.btn.cancelar}">Cancelar</button>
+    </a>
+
+</form>
+
+</body>
+</html>

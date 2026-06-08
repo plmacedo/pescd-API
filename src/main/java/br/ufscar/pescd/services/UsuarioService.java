@@ -51,9 +51,28 @@ public class   UsuarioService {
         return repository.findByCargosContaining(cargo);
     }
 
-
     public List<Usuario> buscarTodos() {
         return repository.findAll();
+    }
+
+    public void excluir(Long id) {
+        repository.deleteById(id);
+    }
+
+    public Usuario atualizar(Long id, Usuario usuarioAtualizado) {
+        Usuario usuarioExistente = buscarPorId(id);
+
+        usuarioExistente.setNome(usuarioAtualizado.getNome());
+        usuarioExistente.setUsername(usuarioAtualizado.getUsername());
+        usuarioExistente.setCargos(usuarioAtualizado.getCargos());
+
+        // se a senhafoi prenchida na edicao, codifica e altera
+        //se veio vazia, mantem a antiga
+        if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().trim().isEmpty()) {
+            usuarioExistente.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
+        }
+
+        return repository.save(usuarioExistente);
     }
 
 }
