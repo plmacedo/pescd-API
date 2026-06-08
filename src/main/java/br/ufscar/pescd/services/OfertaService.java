@@ -27,6 +27,10 @@ public class OfertaService {
         return repository.findAllByOrderByFimDesc();
     }
 
+    public List<Oferta> listarComInscricoesPorFimMaisRecente() {
+        return repository.buscarTodasComInscricoesOrdenadoPorFim();
+    }
+
     public Oferta buscarPorId(Long id) {
 
         return repository.findById(id)

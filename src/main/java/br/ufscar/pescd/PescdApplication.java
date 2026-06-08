@@ -64,6 +64,16 @@ public class PescdApplication {
 
 		usuarioService.salvar(aluno2);
 
+		Usuario aluno3 = new Usuario(
+				null,
+				"Ricardo Yukio",
+				List.of("ROLE_ALUNO"),
+				"ricardo",
+				"123"
+		);
+
+		usuarioService.salvar(aluno3);
+
 		Usuario secretario = new Usuario(
 				null,
 				"Secretario",
@@ -220,5 +230,12 @@ public class PescdApplication {
 		inscricao3.setNomeDisciplinaMinistrada("Eng. software");
 
 		inscricaoService.salvar(inscricao3);
+
+		Inscricao inscricao4 = new Inscricao(aluno3, oferta4);
+		inscricao3.setStatusPlano(StatusPlano.RELATORIO_APROVADO_SUPERVISOR);
+		inscricao3.setInstituicaoMinistrou("Ufscar");
+		inscricao3.setNomeDisciplinaMinistrada("Inteligencia artificial");
+
+		inscricaoService.salvar(inscricao4);
 	}
 }

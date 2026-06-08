@@ -1,15 +1,16 @@
 package br.ufscar.pescd.controllers;
 
+import br.ufscar.pescd.dto.ConcluirRelatorioFormDTO;
+import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.services.OfertaService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/responsavel")
@@ -29,7 +30,7 @@ public class ResponsavelController {
 
         model.addAttribute(
                 "ofertas",
-                ofertaService.listarPorFimMaisRecente()
+                ofertaService.listarComInscricoesPorFimMaisRecente()
         );
 
         return "responsavel/main";
@@ -62,5 +63,35 @@ public class ResponsavelController {
         br.ufscar.pescd.model.Inscricao inscricao = inscricaoService.buscarPorID(id);
         model.addAttribute("inscricao", inscricao);
         return "responsavel/detalhes_aluno";
+    }
+
+    @GetMapping("/concluir-relatorio/{id}")
+    public String exibirFormularioConclusao(@PathVariable("id") Long id, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+
+        ConcluirRelatorioFormDTO form = new ConcluirRelatorioFormDTO();
+        form.setInscricaoID(inscricao.getId());
+        form.setFrequencia(inscricao.getFrequencia());
+        form.setNota(inscricao.getSugestaoNota());
+
+        model.addAttribute("inscricao", inscricao);
+        model.addAttribute("concluirRelatorioForm", form);
+        return "responsavel/concluir_relatorio";
+    }
+
+    @PostMapping("/concluir-relatorio")
+    public String processarConclusao(@Valid @ModelAttribute("concluirRelatorioForm") ConcluirRelatorioFormDTO form,
+                                     BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            if (form.getInscricaoID() == null) {
+                return "redirect:/responsavel/main";
+            }
+            Inscricao inscricao = inscricaoService.buscarPorID(form.getInscricaoID());
+            model.addAttribute("inscricao", inscricao);
+            return "responsavel/concluir_relatorio";
+        }
+
+        inscricaoService.concluirRelatorioResponsavel(form);
+        return "redirect:/responsavel/main?sucesso=relatorio_concluido";
     }
 }

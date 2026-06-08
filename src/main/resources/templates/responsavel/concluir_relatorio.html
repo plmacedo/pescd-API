@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{pr01.titulo}">Concluir Relatório do Aluno</title>
+</head>
+<body>
+<h2 th:text="#{pr01.cabecalho}">Concluir Relatório - Professor Responsável</h2>
+
+<div>
+    <h3 th:text="#{pr01.dadosAluno}">Dados do Aluno e Inscrição</h3>
+    <p><strong th:text="#{pr01.nomeAluno}">Nome do Aluno:</strong> <span th:text="${inscricao.aluno.nome}"></span></p>
+    <p><strong th:text="#{pr01.planoTrabalho}">Plano de Trabalho:</strong> <a th:href="@{/download/plano/{id}(id=${inscricao.id})}" th:text="#{pr01.baixarPlano}">Baixar Plano PDF</a></p>
+    <p><strong th:text="#{pr01.relatorioFinal}">Relatório Final:</strong> <a th:href="@{/download/relatorio/{id}(id=${inscricao.id})}" th:text="#{pr01.baixarRelatorio}">Baixar Relatório PDF</a></p>
+
+    <h3 th:text="#{pr01.parecerSupervisorTitulo}">Parecer do Supervisor</h3>
+    <p><strong th:text="#{pr01.parecerSupervisor}">Parecer Supervisor:</strong> <span th:text="${inscricao.parecerRelatorio}"></span></p>
+    <p><strong th:text="#{pr01.frequenciaSupervisor}">Frequência Validada (Supervisor):</strong> <span th:text="${inscricao.frequencia} + '%'"></span></p>
+    <p><strong th:text="#{pr01.notaSupervisor}">Sugestão de Nota (Supervisor):</strong> <span th:text="${inscricao.sugestaoNota}"></span></p>
+</div>
+
+<hr>
+
+<form th:action="@{/responsavel/concluir-relatorio}" th:object="${concluirRelatorioForm}" method="post">
+    <input type="hidden" th:field="*{inscricaoID}" />
+
+    <div>
+        <label for="parecer" th:text="#{pr01.labelParecer}">Parecer *:</label>
+        <textarea id="parecer" th:field="*{parecer}" required></textarea>
+        <span th:if="${#fields.hasErrors('parecer')}" th:errors="*{parecer}">Erro</span>
+    </div>
+
+    <div>
+        <label for="frequencia" th:text="#{pr01.labelFrequencia}">Frequência (0 a 100%) *:</label>
+        <input type="number" id="frequencia" th:field="*{frequencia}" min="0" max="100" required />
+        <span th:if="${#fields.hasErrors('frequencia')}" th:errors="*{frequencia}">Erro</span>
+    </div>
+
+    <div>
+        <label for="nota" th:text="#{pr01.labelNota}">Nota Final *:</label>
+        <select id="nota" th:field="*{nota}" required>
+            <option value="A" th:selected="*{nota == 'A'}">A</option>
+            <option value="B" th:selected="*{nota == 'B'}">B</option>
+            <option value="C" th:selected="*{nota == 'C'}">C</option>
+            <option value="D" th:selected="*{nota == 'D'}">D</option>
+            <option value="E" th:selected="*{nota == 'E'}">E</option>
+        </select>
+        <span th:if="${#fields.hasErrors('nota')}" th:errors="*{nota}">Erro</span>
+    </div>
+
+    <button type="submit" th:text="#{geral.aprovar}">Aprovar</button>
+    <a th:href="@{/responsavel/main}" class="button" th:text="#{geral.cancelar}">Cancelar</a>
+</form>
+</body>
+</html>
