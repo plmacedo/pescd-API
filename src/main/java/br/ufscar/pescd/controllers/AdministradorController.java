@@ -3,6 +3,7 @@ package br.ufscar.pescd.controllers;
 import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.repositories.FraseRepository;
+import br.ufscar.pescd.repositories.OfertaRepository;
 import br.ufscar.pescd.services.UsuarioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class AdministradorController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private OfertaRepository ofertaRepository;
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
@@ -102,5 +106,27 @@ public class AdministradorController {
     public String excluirUsuario(@PathVariable("id") Long id) {
         usuarioService.excluir(id);
         return "redirect:/administrador/main";
+    }
+
+    @PostMapping("/buscarOferta")
+    public String buscarOferta(
+            @RequestParam String nome,
+            Model model) {
+
+        List<Usuario> usuarios = usuarioService.buscarTodos();
+
+        FraseConfirmacao mensagem =
+                fraseRepository.findById(1L)
+                        .orElse(new FraseConfirmacao());
+
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("mensagem", mensagem.getMensagem());
+
+        model.addAttribute(
+                "ofertasEncontradas",
+                ofertaRepository.findByNome(nome)
+        );
+
+        return "administrador/main";
     }
 }

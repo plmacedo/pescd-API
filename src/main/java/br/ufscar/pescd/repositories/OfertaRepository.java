@@ -11,4 +11,5 @@ public interface OfertaRepository
         extends JpaRepository<Oferta, Long> {
 
     List<Oferta> findAllByOrderByFimDesc();
+    List<Oferta> findByNome(String nome);
 }

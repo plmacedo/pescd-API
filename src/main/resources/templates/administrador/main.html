@@ -54,6 +54,56 @@
 </form>
 
 <br>
+
+<hr>
+
+<h2>Buscar Oferta por Nome</h2>
+
+<form th:action="@{/administrador/buscarOferta}" method="post">
+
+    <label>Nome da oferta:</label>
+    <br><br>
+
+    <input type="text" name="nome" required>
+
+    <button type="submit">
+        Buscar
+    </button>
+
+</form>
+
+<h2>Resultado da Busca</h2>
+
+<table th:if="${ofertasEncontradas != null}"
+       border="1"
+       style="width: 100%; text-align: left;">
+
+    <thead>
+    <tr>
+        <th>Nome</th>
+        <th>Professor</th>
+        <th>Semestre</th>
+        <th>Início</th>
+        <th>Fim</th>
+        <th>Matriculados</th>
+        <th>Status</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="oferta : ${ofertasEncontradas}">
+        <td th:text="${oferta.nome}"></td>
+        <td th:text="${oferta.prof.nome}"></td>
+        <td th:text="${oferta.semestre}"></td>
+        <td th:text="${oferta.inicio}"></td>
+        <td th:text="${oferta.fim}"></td>
+        <td th:text="${oferta.matriculados}"></td>
+        <td th:text="${oferta.status}"></td>
+    </tr>
+    </tbody>
+
+</table>
+
 <hr>
 <a th:href="@{/login}">
     <button type="button" th:text="#{geral.voltarLogin}">Voltar para a tela de Login</button>
