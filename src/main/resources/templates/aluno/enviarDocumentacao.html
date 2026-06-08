@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{aluno.enviarDoc.tituloPg}">Enviar Documentação</title>
+</head>
+<body>
+
+<h2 th:text="#{aluno.enviarDoc.titulo}">Enviar Documentação de Docência Anterior</h2>
+
+<p>
+    <span th:text="#{aluno.enviarDoc.oferta}">Oferta:</span>
+    <span th:text="${inscricao.oferta.nome}"></span>
+</p>
+
+<form th:action="@{/aluno/enviarDocumentacao}" th:object="${documentacaoDTO}" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" th:field="*{inscricaoID}" />
+
+    <div>
+        <label th:text="#{aluno.enviarDoc.instituicao}">Nome da instituição onde ministrou a disciplina:</label><br>
+        <input type="text" th:field="*{instituicao}" />
+        <span th:if="${#fields.hasErrors('instituicao')}" th:errors="*{instituicao}" style="color:red;">Erro</span>
+    </div>
+
+    <div>
+        <label th:text="#{aluno.enviarDoc.nomeDisciplina}">Nome da disciplina:</label><br>
+        <input type="text" th:field="*{nomeDisciplina}" />
+        <span th:if="${#fields.hasErrors('nomeDisciplina')}" th:errors="*{nomeDisciplina}" style="color:red;">Erro</span>
+    </div>
+
+    <div>
+        <label th:text="#{aluno.enviarDoc.cursoDisciplina}">Curso da disciplina:</label><br>
+        <input type="text" th:field="*{cursoDisciplina}" />
+        <span th:if="${#fields.hasErrors('cursoDisciplina')}" th:errors="*{cursoDisciplina}" style="color:red;">Erro</span>
+    </div>
+
+    <div>
+        <label th:text="#{aluno.enviarDoc.cargaHoraria}">Carga horária (em horas):</label><br>
+        <input type="number" th:field="*{cargaHoraria}" />
+        <span th:if="${#fields.hasErrors('cargaHoraria')}" th:errors="*{cargaHoraria}" style="color:red;">Erro</span>
+    </div>
+
+    <div>
+        <label th:text="#{aluno.enviarDoc.arquivo}">Arquivo com a documentação comprobatória (PDF, Máx: 5MB):</label><br>
+        <input type="file" th:field="*{arquivo}" accept="application/pdf" />
+        <span th:if="${#fields.hasErrors('arquivo')}" th:errors="*{arquivo}" style="color:red;">Erro arquivo</span>
+    </div>
+
+    <br>
+    <button type="submit" th:text="#{aluno.enviarDoc.btnEnviar}">Enviar Documentação</button>
+    <a th:href="@{/aluno/main}">
+        <button type="button" th:text="#{aluno.enviarDoc.btnCancelar}">Cancelar</button>
+    </a>
+</form>
+
+</body>
+</html>

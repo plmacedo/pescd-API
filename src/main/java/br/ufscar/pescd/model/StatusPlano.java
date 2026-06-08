@@ -5,5 +5,6 @@ public enum StatusPlano {
     PENDENTE,
     ENVIADO,
     APROVADO,
-    REJEITADO
+    REJEITADO,
+    DOCUMENTACAO_ENVIADA // RN-4 do AL.03
 }

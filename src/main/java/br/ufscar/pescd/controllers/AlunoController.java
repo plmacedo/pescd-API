@@ -8,6 +8,7 @@ import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.services.InscricaoService;
 import br.ufscar.pescd.services.OfertaService;
 import br.ufscar.pescd.services.UsuarioService;
+import br.ufscar.pescd.dto.DocumentacaoFormDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -81,5 +83,54 @@ public class AlunoController {
 
         // redireciona para a lista com um aviso de sucesso na URL
         return "redirect:/aluno/main?sucesso";
+    }
+
+    @GetMapping("/enviarDocumentacao/{idInscricao}")
+    public String exibirFormularioDocumentacao(@PathVariable Long idInscricao, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(idInscricao);
+
+        if(inscricao.getStatusPlano() != br.ufscar.pescd.model.StatusPlano.PENDENTE) {
+            return "redirect:/aluno/main?erroStatus";
+        }
+
+        DocumentacaoFormDTO dto = new DocumentacaoFormDTO();
+        dto.setInscricaoID(inscricao.getId());
+
+        model.addAttribute("inscricao", inscricao);
+        model.addAttribute("documentacaoDTO", dto);
+
+        return "aluno/enviarDocumentacao";
+    }
+
+    @PostMapping("/enviarDocumentacao")
+    public String processarEnvioDocumentacao(@Valid @ModelAttribute("documentacaoDTO") DocumentacaoFormDTO dto, BindingResult result, Model model) {
+        Inscricao inscricao = inscricaoService.buscarPorID(dto.getInscricaoID());
+
+        // RN-3 pdf ou não
+        if (dto.getArquivo() == null || dto.getArquivo().isEmpty()) {
+            result.rejectValue("arquivo", "error.documentacao", "O arquivo com a documentação comprobatória é obrigatório.");
+        } else {
+            if (!"application/pdf".equals(dto.getArquivo().getContentType())) {
+                result.rejectValue("arquivo", "error.documentacao", "O arquivo deve ser obrigatóriamente no formato PDF.");
+            }
+            if (dto.getArquivo().getSize() > 5242880) { // 5MB convertidos em bytes
+                result.rejectValue("arquivo", "error.documentacao", "O arquivo deve ter no máximo 5MB.");
+            }
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("inscricao", inscricao);
+            return "aluno/enviarDocumentacao"; // Retorna para a tela exibindo os erros
+        }
+
+        try {
+            inscricaoService.enviarDocumentacao(dto.getInscricaoID(), dto);
+        } catch (IOException e) {
+            model.addAttribute("erro", "Erro inesperado ao salvar o arquivo.");
+            model.addAttribute("inscricao", inscricao);
+            return "aluno/enviarDocumentacao";
+        }
+
+        return "redirect:/aluno/main?sucessoDocumentacao";
     }
 }

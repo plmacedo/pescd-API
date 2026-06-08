@@ -22,6 +22,28 @@
         <span th:text="#{aluno.inicio}">Inicio do semestre :</span> <span th:text="${inscricao.oferta.inicio}"></span>
         -
         <span th:text="#{aluno.fim}">Fim do semestre :</span> <span th:text="${inscricao.oferta.fim}"></span>
+
+        <br>
+        <span th:text="#{aluno.status}">Status:</span>
+        <span th:text="#{${'status.' + inscricao.statusPlano.name()}}"></span>
+
+        <br><br>
+
+        <a th:if="${inscricao.statusPlano.name() == 'PENDENTE'}" th:href="@{/aluno/enviarDocumentacao/{id}(id=${inscricao.id})}">
+            <button type="button" th:text="#{aluno.btn.enviar_documentacao}">Enviar Documentação</button>
+        </a>
+
+        <br><br>
+    </li>
+</ul>
+
+<br>
+<hr>
+
+<a th:href="@{/login}">
+    <button type="button" th:text="#{geral.voltarLogin}">Voltar para a tela de Login</button>
+</a>
+
         -
         <span>Status da Oferta:</span> <span th:text="#{${inscricao.oferta.status}}"></span>
 
