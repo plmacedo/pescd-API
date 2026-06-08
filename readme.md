@@ -64,7 +64,7 @@ Após o término da inicialização com sucesso no console, o sistema estará pr
 * **PR.04:** **[commit](https://github.com/MauricioAlonzoBCC/projeto-pescd/commit/1c355ed266e9119d8aea778ebc0eeb59bac7ab36)**
 * **S.03:** **[commit](https://github.com/MauricioAlonzoBCC/projeto-pescd/commit/1c355ed266e9119d8aea778ebc0eeb59bac7ab36)**
 * **AD.01:** **[commit](https://github.com/MauricioAlonzoBCC/projeto-pescd/commit/ed4f696441da3fe991e46e3faa5a7edea33a818b)**
-* **PR.02** 
+* **PR.02** **[commit](https://github.com/MauricioAlonzoBCC/projeto-pescd/commit/fc0f7b7a4443a4264bda7682f28d38714f0e5382)**
 
 ### Ricardo Yukio:
 * **AL.03:** **[commit](https://github.com/MauricioAlonzoBCC/projeto-pescd/commit/8dd9c331e04707a096b21ce2473c4e2120177913)**
