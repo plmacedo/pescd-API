@@ -18,6 +18,14 @@
     <input type="hidden" th:field="*{inscricaoID}" />
 
     <div>
+        <label th:text="#{aluno.enviarRelatorio.frequencia}">Porcentagem de Frequência (%):</label><br>
+
+        <input type="number" th:field="*{frequencia}" min="0" max="100" />
+
+        <span th:if="${#fields.hasErrors('frequencia')}" th:errors="*{frequencia}" style="color:red;"></span>
+    </div>
+
+    <div>
         <label th:text="#{aluno.enviarRelatorio.arquivo}">Arquivo do Relatório Final (PDF, Máx: 5MB):</label><br>
         <input type="file" th:field="*{arquivo}" accept="application/pdf" />
         <span th:if="${#fields.hasErrors('arquivo')}" th:errors="*{arquivo}" style="color:red;">Texto de Fallback</span>
