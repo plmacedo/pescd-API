@@ -4,6 +4,7 @@ import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.model.StatusPlano;
+import br.ufscar.pescd.dto.PlanoTrabalhoFormDTO;
 import br.ufscar.pescd.repositories.InscricaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import java.io.IOException;
 
 @Service
 public class InscricaoService {
@@ -47,12 +49,36 @@ public class InscricaoService {
         return obj.orElseThrow(() -> new RuntimeException("Inscrição não encontrada."));
     }
 
-    public void enviarPlanoTrabalho(Long inscricaoID, String textoPlano) {
-        Inscricao inscricao = buscarPorID(inscricaoID);
+    public List<Inscricao> buscarInscricoesPorAluno(Long alunoId) {
+        return inscricaoRepository.findByAlunoId(alunoId);
+    }
 
-        inscricao.setPlanoDeTrabalho(textoPlano);
+    public void enviarPlanoTrabalho(PlanoTrabalhoFormDTO planoDTO) {
+        // 1. Busca a inscrição existente no banco pelo ID contido no DTO
+        Inscricao inscricao = buscarPorID(planoDTO.getInscricaoID());
+
+        // 2. Busca o Professor Supervisor selecionado a partir do ID do DTO [cite: 62]
+        Usuario supervisor = usuarioService.buscarPorId(planoDTO.getProfessorSupervisorId());
+
+        // 3. Transfere os dados textuais do DTO para a Entidade
+        inscricao.setCodigoDisciplina(planoDTO.getCodigoDisciplina());
+        inscricao.setNomeDisciplina(planoDTO.getNomeDisciplina());
+        inscricao.setCursoDisciplina(planoDTO.getCursoDisciplina());
+        inscricao.setSupervisor(supervisor);
+
+        // 4. Converte o arquivo MultipartFile em array de bytes (byte[]) [cite: 61, 63]
+        try {
+            if (planoDTO.getArquivoPlano() != null && !planoDTO.getArquivoPlano().isEmpty()) {
+                inscricao.setArquivoPlano(planoDTO.getArquivoPlano().getBytes());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao processar o arquivo PDF do plano de trabalho.", e);
+        }
+
+        // 5. Altera o status da inscrição para PLANO ENVIADO [cite: 64]
         inscricao.setStatusPlano(StatusPlano.ENVIADO);
 
+        // 6. Salva as alterações de forma definitiva no banco de dados
         inscricaoRepository.save(inscricao);
     }
 

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,14 +32,13 @@ public class AlunoController {
     // retorna todas as inscricoes de um aluno
     @GetMapping("/main")
     public String main(Model model) {
-
         // pega o aluno atual
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario aluno = usuarioService.buscarPorUsername(auth.getName());
 
-        List<Oferta> ofertas = inscricaoService.inscricoesDoAluno(aluno.getId());
+        List<Inscricao> inscricoes = inscricaoService.buscarInscricoesPorAluno(aluno.getId());
 
-        model.addAttribute("ofertas", ofertas);
+        model.addAttribute("inscricoes", inscricoes);
 
         return "aluno/main";
     }
@@ -49,24 +49,35 @@ public class AlunoController {
 
         PlanoTrabalhoFormDTO dto = new PlanoTrabalhoFormDTO();
         dto.setInscricaoID(inscricao.getId());
-        dto.setPlanoDeTrabalho(inscricao.getPlanoDeTrabalho());
 
         model.addAttribute("inscricao", inscricao);
         model.addAttribute("planoDTO", dto);
+
+        // Carrega os professores do BD para o select no HTML
+        model.addAttribute("professores", usuarioService.filtrarPorCargo("ROLE_SUPERVISOR"));
 
         return "aluno/enviar_plano";
     }
 
     @PostMapping("/enviarPlano")
     public String processarEnvioPlano(@Valid @ModelAttribute("planoDTO") PlanoTrabalhoFormDTO planoDTO, BindingResult result, Model model) {
+        MultipartFile arquivo = planoDTO.getArquivoPlano();
+
+        // Validar se é PDF
+        if (arquivo == null || arquivo.isEmpty() || !arquivo.getContentType().equals("application/pdf")) {
+            result.rejectValue("arquivoPlano", "error.arquivoPlano", "O arquivo deve ser um PDF válido.");
+        }
 
         if (result.hasErrors()) {
             Inscricao inscricao = inscricaoService.buscarPorID(planoDTO.getInscricaoID());
             model.addAttribute("inscricao", inscricao);
+            model.addAttribute("professores", usuarioService.filtrarPorCargo("ROLE_PROFESSOR"));
             return "aluno/enviar_plano"; // volta pra tela se tiver erro
         }
 
-        inscricaoService.enviarPlanoTrabalho(planoDTO.getInscricaoID(), planoDTO.getPlanoDeTrabalho());
+        // Você precisará atualizar o InscricaoService para aceitar o DTO completo
+        // e salvar os novos campos juntamente com o arquivo
+        inscricaoService.enviarPlanoTrabalho(planoDTO);
 
         // redireciona para a lista com um aviso de sucesso na URL
         return "redirect:/aluno/main?sucesso";
