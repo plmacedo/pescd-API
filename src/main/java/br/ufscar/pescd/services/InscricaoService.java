@@ -83,12 +83,6 @@ public class InscricaoService {
         // 6. Salva as alterações de forma definitiva no banco de dados
         inscricaoRepository.save(inscricao);
     }
-
-    // Retorna a lista completa de inscrições do aluno, sem filtrá-las apenas por ofertas
-    public List<Inscricao> buscarInscricoesPorAluno(Long alunoId) {
-        return inscricaoRepository.findByAlunoId(alunoId);
-    }
-
     // inscreve aluno ja existente no BD
     public void inscreverAluno(Long ofertaId, Long alunoId) {
         Oferta oferta = ofertaService.buscarPorId(ofertaId);
