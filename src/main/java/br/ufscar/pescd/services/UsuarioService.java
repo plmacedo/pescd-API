@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 
@@ -64,10 +65,11 @@ public class   UsuarioService {
 
         usuarioExistente.setNome(usuarioAtualizado.getNome());
         usuarioExistente.setUsername(usuarioAtualizado.getUsername());
-        usuarioExistente.setCargos(usuarioAtualizado.getCargos());
 
-        // se a senhafoi prenchida na edicao, codifica e altera
-        //se veio vazia, mantem a antiga
+
+        usuarioExistente.setCargos(new ArrayList<>(usuarioAtualizado.getCargos()));
+
+
         if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().trim().isEmpty()) {
             usuarioExistente.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
         }

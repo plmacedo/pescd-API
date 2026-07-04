@@ -11,8 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.beans.PropertyEditorSupport;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,9 +36,8 @@ public class AdministradorController {
         binder.registerCustomEditor(List.class, "cargos", new PropertyEditorSupport() {
             @Override
             public void setAsText(String text) {
-                // Se o select enviar valores separados por vírgula ou o Spring enviar um array,
-                // aqui você garante que seja transformado em uma List<String>
-                setValue(Arrays.asList(text.split(",")));
+
+                setValue(new ArrayList<>(Arrays.asList(text.split(","))));
             }
         });
     }
@@ -88,10 +89,19 @@ public class AdministradorController {
     //editar usuario existente
     @GetMapping("/editarUsuario/{id}")
     public String editarUsuario(@PathVariable("id") Long id, Model model) {
-        Usuario usuario = usuarioService.buscarPorId(id);
+        Usuario usuarioBD = usuarioService.buscarPorId(id);
+
+        // Cria um clone desvinculado do banco para enviar ao formulário sem corromper o banco
+        Usuario usuarioForm = new Usuario();
+        usuarioForm.setId(usuarioBD.getId());
+        usuarioForm.setNome(usuarioBD.getNome());
+        usuarioForm.setUsername(usuarioBD.getUsername());
+        usuarioForm.setCargos(usuarioBD.getCargos());
+
         // Oculta a senha por segurança ao enviar para a view
-        usuario.setSenha("");
-        model.addAttribute("usuario", usuario);
+        usuarioForm.setSenha("");
+
+        model.addAttribute("usuario", usuarioForm);
         return "administrador/form_usuario";
     }
 
@@ -104,8 +114,12 @@ public class AdministradorController {
     //excluir usuario
     @GetMapping("/excluirUsuario/{id}")
     public String excluirUsuario(@PathVariable("id") Long id) {
-        usuarioService.excluir(id);
-        return "redirect:/administrador/main";
+        try {
+            usuarioService.excluir(id);
+            return "redirect:/administrador/main?sucesso";
+        } catch (DataIntegrityViolationException e) {
+            return "redirect:/administrador/main?erro=Usuario+possui+vinculos+e+nao+pode+ser+excluido";
+        }
     }
 
     @PostMapping("/buscarOferta")

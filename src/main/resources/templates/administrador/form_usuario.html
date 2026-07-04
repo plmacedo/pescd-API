@@ -8,9 +8,11 @@
 
 <h1 th:text="${usuario.id == null} ? ${#messages.msg('admin.form.titulo.novo')} : ${#messages.msg('admin.form.titulo.editar')}">Gerenciar Usuário</h1>
 
-<form th:action="${usuario.id == null ? '/administrador/salvarUsuario' : '/administrador/atualizarUsuario/' + usuario.id}"
+<form th:action="${usuario.id == null} ? @{/administrador/salvarUsuario} : @{/administrador/atualizarUsuario/{id}(id=${usuario.id})}"
       th:object="${usuario}"
       method="post">
+
+    <input type="hidden" th:field="*{id}" />
 
     <label th:text="#{admin.form.label.nome}">Nome Completo:</label>
     <br>

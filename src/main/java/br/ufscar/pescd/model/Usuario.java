@@ -20,7 +20,7 @@ public class Usuario{
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String senha;
 
     public Usuario(){}
@@ -51,6 +51,8 @@ public class Usuario{
     public List<String> getCargos(){
         return cargos;
     }
+
+    public void setId(Long id) { this.id = id; }
 
     public void setSenha(String senha){
         this.senha = senha;
