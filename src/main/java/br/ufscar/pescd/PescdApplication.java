@@ -197,14 +197,6 @@ public class PescdApplication {
 
 		inscricaoService.salvar(inscricaoPendente);
 
-		//para testar a AL.04
-		Inscricao inscricaoAvancada = new Inscricao(aluno2, oferta2);
-		inscricaoAvancada.setStatusPlano(StatusPlano.DOCUMENTACAO_ENVIADA);
-		inscricaoAvancada.setInstituicaoMinistrou("Ufscar");
-		inscricaoAvancada.setNomeDisciplinaMinistrada("Banco de Dados");
-
-		inscricaoService.salvar(inscricaoAvancada);
-
 		FraseConfirmacao frase = new FraseConfirmacao("Deseja mesmo encerrar essa oferta?");
 		FraseRepository fraseRepository = context.getBean(FraseRepository.class);
 
@@ -213,26 +205,26 @@ public class PescdApplication {
 		Inscricao inscricao1 = new Inscricao();
 		inscricao1.setAluno(aluno);
 		inscricao1.setOferta(oferta2);
-		inscricao1.setStatusPlano(StatusPlano.ENVIADO);
+		inscricao1.setStatusPlano(StatusPlano.PENDENTE);
 
 		inscricaoService.salvar(inscricao1);
 
 		Inscricao inscricao2 = new Inscricao();
 		inscricao2.setAluno(aluno2);
 		inscricao2.setOferta(oferta5);
-		inscricao2.setStatusPlano(StatusPlano.ENVIADO);
+		inscricao2.setStatusPlano(StatusPlano.PENDENTE);
 
 		inscricaoService.salvar(inscricao2);
 
 		Inscricao inscricao3 = new Inscricao(aluno2, oferta3);
-		inscricao3.setStatusPlano(StatusPlano.RELATORIO_ENVIADO);
+		inscricao3.setStatusPlano(StatusPlano.PENDENTE);
 		inscricao3.setInstituicaoMinistrou("Ufscar");
 		inscricao3.setNomeDisciplinaMinistrada("Eng. software");
 
 		inscricaoService.salvar(inscricao3);
 
 		Inscricao inscricao4 = new Inscricao(aluno3, oferta4);
-		inscricao3.setStatusPlano(StatusPlano.RELATORIO_APROVADO_SUPERVISOR);
+		inscricao3.setStatusPlano(StatusPlano.PENDENTE);
 		inscricao3.setInstituicaoMinistrou("Ufscar");
 		inscricao3.setNomeDisciplinaMinistrada("Inteligencia artificial");
 

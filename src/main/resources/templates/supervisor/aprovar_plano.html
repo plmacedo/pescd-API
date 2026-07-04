@@ -15,7 +15,7 @@
     <p><strong th:text="#{disciplina.curso} + ':'"></strong> <span th:text="${inscricao.cursoDisciplina}"></span></p>
 
     <p><strong th:text="#{inscricao.arquivo.plano} + ':'"></strong>
-        <a th:if="${inscricao.arquivoPlano != null}" href="#" th:text="#{geral.download}">Fazer Download do PDF enviado</a>
+        <a th:if="${inscricao.arquivoPlano != null}" th:href="@{/download/plano/{id}(id=${inscricao.id})}" th:text="#{geral.download}">Fazer Download do PDF enviado</a>
         <span th:if="${inscricao.arquivoPlano == null}" th:text="#{inscricao.nenhum.arquivo}">Nenhum arquivo anexado</span>
     </p>
 </fieldset>
