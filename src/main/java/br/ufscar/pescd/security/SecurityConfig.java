@@ -17,19 +17,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http.authorizeHttpRequests(auth -> auth
-                //TODOS
-                        .requestMatchers("/login" , "/css", "/visitante").permitAll()
-                //ALUNO
+        http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        //TODOS (Já com as aspas arrumadas para o Swagger funcionar!)
+                        .requestMatchers("/login" , "/css/**", "/visitante/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        //ALUNO
                         .requestMatchers("/aluno/**").hasRole("ALUNO")
-                //ADMINISTRADOR
+                        //ADMINISTRADOR
                         .requestMatchers("/administrador/**" ).hasRole("ADMINISTRADOR")
-                //RESPONSAVEL
+                        //RESPONSAVEL
                         .requestMatchers("/responsavel/**" ).hasRole("RESPONSAVEL")
-                //SUPERVISOR
+                        //SUPERVISOR
                         .requestMatchers("/supervisor/**" ).hasRole("SUPERVISOR")
-                //SECRETARIO
+                        //SECRETARIO
                         .requestMatchers("/secretario/**" ).hasRole("SECRETARIO")
 
                         .anyRequest().authenticated()

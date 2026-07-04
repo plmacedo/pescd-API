@@ -2,6 +2,7 @@ package br.ufscar.pescd.controllers;
 
 import br.ufscar.pescd.dto.AddAlunoFormDTO;
 import br.ufscar.pescd.dto.OfertaFormDTO;
+import br.ufscar.pescd.dto.OfertaResponseDTO;
 import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
@@ -14,6 +15,8 @@ import br.ufscar.pescd.services.UsuarioService;
 import br.ufscar.pescd.dto.DocumentacaoFormDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -22,53 +25,61 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.multipart.MultipartFile;import org.springframework.web.bind.annotation.RequestParam;
 
 
-@Controller
+@RestController
 @RequestMapping("/secretario")
 public class SecretarioController {
 
-    @Autowired
-    private OfertaService ofertaService;
-    @Autowired
-    private FraseRepository fraseRepository;
-    @Autowired
-    private UsuarioService usuarioService;
+    private final OfertaService ofertaService;
+    private final FraseRepository fraseRepository;
+    private final UsuarioService usuarioService;
+    private final InscricaoService inscricaoService;
+    private final InscricaoRepository inscricaoRepository;
 
-    @Autowired
-    private InscricaoService inscricaoService;
 
-    @Autowired
-    private InscricaoRepository inscricaoRepository;
+    public SecretarioController(OfertaService ofertaService, FraseRepository fraseRepository,
+                                UsuarioService usuarioService, InscricaoService inscricaoService,
+                                InscricaoRepository inscricaoRepository) {
+        this.ofertaService = ofertaService;
+        this.fraseRepository = fraseRepository;
+        this.usuarioService = usuarioService;
+        this.inscricaoService = inscricaoService;
+        this.inscricaoRepository = inscricaoRepository;
+    }
 
     @GetMapping("/main")
-    public String main(Model model) {
+    public ResponseEntity<Map<String, Object>> main() {
 
-        model.addAttribute(
-                "ofertas",
-                ofertaService.listarPorFimMaisRecente()
-        );
+        //objeto que retornará em Json
+        Map<String, Object> response = new HashMap<>();
 
-        FraseConfirmacao mensagem =
-                fraseRepository
-                        .findAll()
-                        .stream()
-                        .findFirst()
-                        .orElseThrow();
 
-        model.addAttribute(
-                "mensagem",
-                mensagem.getMensagem()
-        );
+        List<Oferta> ofertasDoBanco = ofertaService.listarPorFimMaisRecente();
 
-        return "secretario/main";
+        // converte para evitar loops
+        List<OfertaResponseDTO> ofertasLimpas = ofertasDoBanco.stream()
+                .map(OfertaResponseDTO::new)
+                .toList();
+
+
+        response.put("ofertas", ofertasLimpas);
+
+        FraseConfirmacao mensagem = fraseRepository.findAll().stream().findFirst().orElseThrow();
+        response.put("mensagem", mensagem.getMensagem());
+
+        return ResponseEntity.ok(response); // Retorna 200 OK com o JSON
     }
 
     @PostMapping("/encerrar/{id}")
-    public String encerrarOferta(@PathVariable Long id) {
+    public ResponseEntity<String> encerrarOferta(@PathVariable Long id) {
 
         // pega o usuario atual
         Authentication auth =
@@ -87,174 +98,115 @@ public class SecretarioController {
 
         ofertaService.salvar(oferta);
 
-        return "redirect:/secretario/main";
+        return ResponseEntity.ok("Oferta encerrada com sucesso.");
     }
 
+    //criar_oferta deletado pois não há uma tela para carregar
 
-    @GetMapping("/criar_oferta")
-    public String criarOferta(Model model) {
-
-        model.addAttribute(
-                "professores",
-                usuarioService.filtrarPorCargo("ROLE_RESPONSAVEL")
-        );
-
-
-
-        model.addAttribute(
-                "ofertaFormDTO",
-                new OfertaFormDTO());
-        return "secretario/criar_oferta";
-    }
 
     //@Valid aplica restricoes do DTO nos campos recebidos
     @PostMapping("/criar_oferta")
-    public String salvarNovaOferta(
-            @Valid @ModelAttribute("ofertaFormDTO")OfertaFormDTO dto,
-            BindingResult result,
-            Model model){
+    public ResponseEntity<?> salvarNovaOferta(@Valid @RequestBody OfertaFormDTO dto){
 
         //verifica se inicio e fim estao ok
         if(dto.getInicio() != null && dto.getFim() != null){
             if(dto.getInicio().isAfter(dto.getFim())){
-                // anota erro no binding result
-                result.rejectValue("fim", "error.ofertaFormDTO",
-                        "A data de fim não pode ser anterior à data de início.");
+                // envia erro 400
+                return ResponseEntity.badRequest().body("A data de fim não pode ser anterior à de ínicio.");
             }
         }
 
-        //Se houver erros volta para mesma tela
-        if(result.hasErrors()){
-            model.addAttribute("professores",
-                    usuarioService.filtrarPorCargo("ROLE_RESPONSAVEL"));
-                return "secretario/criar_oferta";
-        }
+
 
         //se tudo ok:
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String usernameSecretario = auth.getName();
 
         ofertaService.salvarOferta(dto, usernameSecretario);
-        return "redirect:/secretario/main";
+        return ResponseEntity.status(HttpStatus.CREATED).body("Oferta criada com sucesso!!");
 
 
     }
 
-
-    @GetMapping("/oferta/{id}/alunos")
-    public String adicionarAlunos(@PathVariable Long id, Model model){
-        Oferta oferta = ofertaService.buscarPorId(id);
-        model.addAttribute("oferta", oferta);
-
-        model.addAttribute("alunos", usuarioService.filtrarPorCargo("ROLE_ALUNO") );
-        model.addAttribute("addAlunoFormDTO", new AddAlunoFormDTO());
-        model.addAttribute("inscricoes", inscricaoRepository.findByOfertaId(id));
-        return "secretario/add_aluno";
-    }
 
 
     @PostMapping("/oferta/{id}/add_aluno_lista")
-    public String processarAlunoBD(@PathVariable Long id,
-                                   @Valid @ModelAttribute("addAlunoFormDTO") AddAlunoFormDTO dto,
-                                   BindingResult result,
-                                   Model model){
-        if(result.hasErrors()){
-            model.addAttribute("oferta", ofertaService.buscarPorId(id));
-            model.addAttribute("alunos", usuarioService.filtrarPorCargo("ROLE_ALUNO"));
-            model.addAttribute("inscricoes", inscricaoRepository.findByOfertaId(id));
-            return "secretario/add_aluno";
-        }
-
+    public ResponseEntity<String> processarAlunoBD(@PathVariable Long id, @Valid @RequestBody AddAlunoFormDTO dto){
 
         inscricaoService.inscreverAluno(id, dto.getAlunoId());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Aluno inscrito com sucesso.");
 
-        return "redirect:/secretario/oferta/" + id + "/alunos?sucesso=true";
     }
 
 
     @PostMapping("/oferta/{id}/alunos/upload")
-    public String processarUploadAlunos(@PathVariable Long id,
-                                        @RequestParam("file") MultipartFile file,
-                                        Model model){
+    public ResponseEntity<String> processarUploadAlunos(@PathVariable Long id, @RequestParam("file") MultipartFile file){
+        // 1. Verifica se está vazio
         if (file.isEmpty()) {
-            return "redirect:/secretario/oferta/" + id + "/alunos?erro=arquivo_vazio";
+            return ResponseEntity.badRequest().body("O arquivo enviado está vazio.");
         }
 
+
+        String filename = file.getOriginalFilename();
+
+        if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
+            return ResponseEntity.badRequest().body("Formato inválido. O arquivo deve ser obrigatoriamente um .csv");
+        }
+
+        // Se passou pelas travas, tenta processar...
         try {
-             inscricaoService.processarCsvInscricoes(id, file);
-             return "redirect:/secretario/oferta/" + id + "/alunos?sucesso=true";
+            inscricaoService.processarCsvInscricoes(id, file);
+            return ResponseEntity.ok("Upload e inscrições processadas com sucesso.");
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:/secretario/oferta/" + id + "/alunos?erro=processamento";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no processamento do CSV.");
         }
 
     }
 
-    @GetMapping("/enviarDocumentacao/{idInscricao}")
-    public String exibirFormularioDocumentacao(@PathVariable Long idInscricao, Model model) {
-        Inscricao inscricao = inscricaoService.buscarPorID(idInscricao);
-
-        // A regra diz que o status do aluno nesta oferta deve ser "não enviado" (PENDENTE no sistema)
-        if(inscricao.getStatusPlano() != br.ufscar.pescd.model.StatusPlano.PENDENTE) {
-            return "redirect:/aluno/main?erroStatus";
-        }
-
-        DocumentacaoFormDTO dto = new DocumentacaoFormDTO();
-        dto.setInscricaoID(inscricao.getId());
-
-        model.addAttribute("inscricao", inscricao);
-        model.addAttribute("documentacaoDTO", dto);
-
-        return "aluno/enviar_documentacao";
-    }
 
     @PostMapping("/enviarDocumentacao")
-    public String processarEnvioDocumentacao(@Valid @ModelAttribute("documentacaoDTO") DocumentacaoFormDTO dto, BindingResult result, Model model) {
+    public ResponseEntity<?> processarEnvioDocumentacao(@Valid @ModelAttribute DocumentacaoFormDTO dto) {
+        //ainda usa Model por causa que há upload de arquivos além de JSON
         Inscricao inscricao = inscricaoService.buscarPorID(dto.getInscricaoID());
 
         // RN-3: Validação manual se o arquivo é um PDF e se respeita o limite de 5MB
         if (dto.getArquivo() == null || dto.getArquivo().isEmpty()) {
-            result.rejectValue("arquivo", "error.documentacao", "O arquivo com a documentação comprobatória é obrigatório.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Status não permite envio de documentação.");
         } else {
             if (!"application/pdf".equals(dto.getArquivo().getContentType())) {
-                result.rejectValue("arquivo", "error.documentacao", "O arquivo deve ser obrigatóriamente no formato PDF.");
+                return ResponseEntity.badRequest().body("O arquivo deve ser obrigatoriamente no formato PDF.");
             }
             if (dto.getArquivo().getSize() > 5242880) { // 5MB convertidos em bytes
-                result.rejectValue("arquivo", "error.documentacao", "O arquivo deve ter no máximo 5MB.");
+                return ResponseEntity.badRequest().body("O arquivo deve ter no máximo 5MB.");
             }
         }
 
-        if (result.hasErrors()) {
-            model.addAttribute("inscricao", inscricao);
-            return "aluno/enviar_documentacao"; // Retorna para a tela exibindo os erros
-        }
 
         try {
             inscricaoService.enviarDocumentacao(dto.getInscricaoID(), dto);
-        } catch (IOException e) {
-            model.addAttribute("erro", "Erro inesperado ao salvar o arquivo.");
-            model.addAttribute("inscricao", inscricao);
-            return "aluno/enviar_documentacao";
-        }
+            return ResponseEntity.ok("Documentação enviada com sucesso.");
 
-        // RN-4: Envio com sucesso
-        return "redirect:/aluno/main?sucessoDocumentacao";
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro inesperado ao salvar o arquivo.");
+        }
     }
 
     @GetMapping("/oferta/{id}/detalhes")
-    public String detalhesOferta(@PathVariable Long id, Model model) {
+    public ResponseEntity<Map<String, Object>> detalhesOferta(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+
         Oferta oferta = ofertaService.buscarPorId(id);
-        model.addAttribute("oferta", oferta);
-        model.addAttribute("inscricoes", inscricaoRepository.findByOfertaId(id));
-        return "secretario/detalhes_oferta";
+        response.put("oferta", ofertaService.buscarPorId(id));
+        response.put("inscricoes", inscricaoRepository.findByOfertaId(id));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/inscricao/{id}/detalhes")
-    public String detalhesAluno(@PathVariable Long id, Model model) {
+    public ResponseEntity<Inscricao> detalhesAluno(@PathVariable Long id) {
         Inscricao inscricao = inscricaoService.buscarPorID(id);
-        model.addAttribute("inscricao", inscricao);
-        return "secretario/detalhes_aluno";
+        return ResponseEntity.ok(inscricaoService.buscarPorID(id));
     }
 
 }
