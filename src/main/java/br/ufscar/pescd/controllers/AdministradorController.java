@@ -23,19 +23,19 @@ import java.util.stream.Collectors;
 @RequestMapping("/administrador")
 public class AdministradorController {
 
-    @Autowired
-    private FraseRepository fraseRepository;
+    private final FraseRepository fraseRepository;
+    private final UsuarioService usuarioService;
+    private final OfertaRepository ofertaRepository;
 
-    @Autowired
-    private UsuarioService usuarioService;
-
-    @Autowired
-    private OfertaRepository ofertaRepository;
-
-
+    public AdministradorController(FraseRepository fraseRepository,
+                                   UsuarioService usuarioService,
+                                   OfertaRepository ofertaRepository) {
+        this.fraseRepository = fraseRepository;
+        this.usuarioService = usuarioService;
+        this.ofertaRepository = ofertaRepository;
+    }
     @GetMapping("/usuarios")
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {
-        // Agora retornamos o DTO seguro, sem a senha, mas com os cargos
         List<UsuarioResponseDTO> usuarios = usuarioService.buscarTodos()
                 .stream()
                 .map(UsuarioResponseDTO::new)

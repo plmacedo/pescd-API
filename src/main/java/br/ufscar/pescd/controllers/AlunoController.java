@@ -1,9 +1,6 @@
 package br.ufscar.pescd.controllers;
 
-import br.ufscar.pescd.dto.InscricaoResponseDTO;
-import br.ufscar.pescd.dto.PlanoTrabalhoFormDTO;
-import br.ufscar.pescd.dto.RelatorioFinalFormDTO;
-import br.ufscar.pescd.dto.DocumentacaoFormDTO;
+import br.ufscar.pescd.dto.*;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.model.StatusPlano;
@@ -54,8 +51,15 @@ public class AlunoController {
         Inscricao inscricao = inscricaoService.buscarPorID(idInscricao);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("inscricao", inscricao);
-        response.put("professores", usuarioService.filtrarPorCargo("ROLE_SUPERVISOR"));
+
+        response.put("inscricao", new InscricaoResponseDTO(inscricao));
+
+        List<UsuarioResponseDTO> professoresDTO = usuarioService.filtrarPorCargo("ROLE_SUPERVISOR")
+                .stream()
+                .map(UsuarioResponseDTO::new)
+                .toList();
+
+        response.put("professores", professoresDTO);
 
         return ResponseEntity.ok(response);
     }
@@ -81,7 +85,7 @@ public class AlunoController {
                     .body("Status inválido para envio de documentação comprobatória.");
         }
 
-        return ResponseEntity.ok(inscricao);
+        return ResponseEntity.ok(new InscricaoResponseDTO(inscricao));
     }
 
     @PostMapping("/enviarDocumentacao")
@@ -108,11 +112,12 @@ public class AlunoController {
     }
 
     @GetMapping("/enviarRelatorio/{idInscricao}")
-    public ResponseEntity<Inscricao> exibirFormularioRelatorio(@PathVariable Long idInscricao) {
+    public ResponseEntity<InscricaoResponseDTO> exibirFormularioRelatorio(@PathVariable Long idInscricao) {
         Inscricao inscricao = inscricaoService.buscarPorID(idInscricao);
-        return ResponseEntity.ok(inscricao);
-    }
 
+        return ResponseEntity.ok(new InscricaoResponseDTO(inscricao));
+    }
+    
     @PostMapping("/enviarRelatorio")
     public ResponseEntity<?> processarEnvioRelatorio(@Valid @ModelAttribute RelatorioFinalFormDTO dto) {
         MultipartFile arquivo = dto.getArquivo();
