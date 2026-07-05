@@ -68,6 +68,17 @@ public class ResponsavelController {
 
         Oferta oferta = ofertaService.buscarPorId(id);
 
+        List<Inscricao> inscricoes =
+                inscricaoRepository.findByOfertaId(id);
+
+        boolean podeFinalizar = inscricoes.stream()
+                .allMatch(i -> i.getStatusPlano() == StatusPlano.CONCLUIDO_PELO_RESPONSAVEL);
+
+        if (!podeFinalizar) {
+            return ResponseEntity.badRequest()
+                    .body("Não é possível finalizar: existem alunos não concluídos pelo responsável.");
+        }
+
         oferta.setStatus("Aguardando encerramento do secretario");
 
         ofertaService.salvar(oferta);
