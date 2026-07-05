@@ -146,12 +146,13 @@ public class ResponsavelController {
     @PostMapping("/analisarDocumentacao/{id}")
     public ResponseEntity<?> processarAnaliseDocumentacao(
             @PathVariable Long id,
-            @Valid @ModelAttribute AnalisarDocumentacaoFormDTO dto,
-            BindingResult result) {
+            @Valid @RequestBody AnalisarDocumentacaoFormDTO dto) {
 
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest()
-                    .body("Dados inválidos.");
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+
+        if (inscricao.getStatusPlano() != StatusPlano.DOCUMENTACAO_ENVIADA) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A documentação não está disponível para análise.");
         }
 
         inscricaoService.analisarDocumentacao(id, dto);
