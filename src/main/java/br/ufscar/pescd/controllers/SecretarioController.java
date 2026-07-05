@@ -212,7 +212,7 @@ public class SecretarioController {
 
         response.put("oferta", detalhesDTO);
 
-        // 3. Requisito: Mensagem caso a lista de alunos esteja vazia
+        // Requisito: Mensagem caso a lista de alunos esteja vazia
         if (detalhesDTO.getInscricoes() == null || detalhesDTO.getInscricoes().isEmpty()) {
             response.put("mensagem", "Não há alunos inscritos nesta oferta no momento.");
         }
