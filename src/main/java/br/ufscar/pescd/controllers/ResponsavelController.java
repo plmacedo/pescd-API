@@ -125,11 +125,18 @@ public class ResponsavelController {
             BindingResult result) {
 
         if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(
-                    result.getFieldErrors().stream()
+            return ResponseEntity.badRequest()
+                    .body(result.getFieldErrors()
+                            .stream()
                             .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                            .toList()
-            );
+                            .toList());
+        }
+
+        Inscricao inscricao = inscricaoService.buscarPorID(form.getInscricaoID());
+
+        if (inscricao.getStatusPlano() != StatusPlano.RELATORIO_APROVADO_SUPERVISOR) {
+            return ResponseEntity.badRequest()
+                    .body("Relatório ainda não foi aprovado pelo supervisor.");
         }
 
         inscricaoService.concluirRelatorioResponsavel(form);
