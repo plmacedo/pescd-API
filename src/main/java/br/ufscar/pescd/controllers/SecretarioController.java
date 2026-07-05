@@ -1,8 +1,6 @@
 package br.ufscar.pescd.controllers;
 
-import br.ufscar.pescd.dto.AddAlunoFormDTO;
-import br.ufscar.pescd.dto.OfertaFormDTO;
-import br.ufscar.pescd.dto.OfertaResponseDTO;
+import br.ufscar.pescd.dto.*;
 import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.Usuario;
@@ -12,7 +10,6 @@ import br.ufscar.pescd.repositories.InscricaoRepository;
 import br.ufscar.pescd.services.InscricaoService;
 import br.ufscar.pescd.services.OfertaService;
 import br.ufscar.pescd.services.UsuarioService;
-import br.ufscar.pescd.dto.DocumentacaoFormDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -81,11 +78,19 @@ public class SecretarioController {
     @PostMapping("/encerrar/{id}")
     public ResponseEntity<String> encerrarOferta(@PathVariable Long id) {
 
+        Oferta oferta = ofertaService.buscarPorId(id);
+
+
+        if (!"Aguardando encerramento do secretario".equals(oferta.getStatus())) {
+            return ResponseEntity.badRequest().body("Ação negada: Oferta ainda ainda não está pronta para o encerramento");
+        }
+
+        if ("Concluida".equals(oferta.getStatus())) {
+            return ResponseEntity.badRequest().body("Ação negada: Esta oferta já foi encerrada anteriormente.");
+        }
         // pega o usuario atual
         Authentication auth =
                 SecurityContextHolder.getContext().getAuthentication();
-
-        Oferta oferta = ofertaService.buscarPorId(id);
 
         oferta.setStatus("Concluida");
 
@@ -115,9 +120,6 @@ public class SecretarioController {
                 return ResponseEntity.badRequest().body("A data de fim não pode ser anterior à de ínicio.");
             }
         }
-
-
-
         //se tudo ok:
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String usernameSecretario = auth.getName();
@@ -132,7 +134,7 @@ public class SecretarioController {
 
     @PostMapping("/oferta/{id}/add_aluno_lista")
     public ResponseEntity<String> processarAlunoBD(@PathVariable Long id, @Valid @RequestBody AddAlunoFormDTO dto){
-
+        // (penis) ta deixando add um mesmo aluno muitas vezes
         inscricaoService.inscreverAluno(id, dto.getAlunoId());
         return ResponseEntity.status(HttpStatus.CREATED).body("Aluno inscrito com sucesso.");
 
@@ -171,7 +173,7 @@ public class SecretarioController {
         //ainda usa Model por causa que há upload de arquivos além de JSON
         Inscricao inscricao = inscricaoService.buscarPorID(dto.getInscricaoID());
 
-        // RN-3: Validação manual se o arquivo é um PDF e se respeita o limite de 5MB
+        //  Validação manual se o arquivo é um PDF e se respeita o limite de 5MB
         if (dto.getArquivo() == null || dto.getArquivo().isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Status não permite envio de documentação.");
         } else {
@@ -197,9 +199,18 @@ public class SecretarioController {
     public ResponseEntity<Map<String, Object>> detalhesOferta(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();
 
-        Oferta oferta = ofertaService.buscarPorId(id);
-        response.put("oferta", ofertaService.buscarPorId(id));
-        response.put("inscricoes", inscricaoRepository.findByOfertaId(id));
+        Oferta ofertaDoBanco = ofertaService.buscarPorId(id);
+
+        response.put("oferta", new OfertaResponseDTO(ofertaDoBanco));
+
+        List<Inscricao> inscricoesDoBanco = inscricaoRepository.findByOfertaId(id);
+        // ARRUMAR ISSO COM O DTO QUE O MAURICIO MANDOU (ofertadetalhesDTO) (penis)
+        List<InscricaoResponseDTO> inscricoesLimpas = inscricoesDoBanco.stream()
+                .map(InscricaoResponseDTO::new)
+                .toList();
+
+        response.put("inscricoes", inscricoesLimpas);
+
         return ResponseEntity.ok(response);
     }
 
@@ -207,6 +218,9 @@ public class SecretarioController {
     public ResponseEntity<Inscricao> detalhesAluno(@PathVariable Long id) {
         Inscricao inscricao = inscricaoService.buscarPorID(id);
         return ResponseEntity.ok(inscricaoService.buscarPorID(id));
+
+        // USAR AQUI DTO QUE MAURICIO VAI CRIAR (penis)
+        // INSCRICAODETALHESDTO
     }
 
 }

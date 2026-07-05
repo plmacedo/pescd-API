@@ -8,6 +8,7 @@ public class OfertaResponseDTO {
     private String nome;
     private String semestre;
     private String nomeProfessor;
+    private String status;
 
 
     public OfertaResponseDTO() {
@@ -18,6 +19,9 @@ public class OfertaResponseDTO {
         this.id = oferta.getId();
         this.nome = oferta.getNome();
         this.semestre = oferta.getSemestre();
+        this.status = oferta.getStatus();
+        this.nomeProfessor = oferta.getProf().getNome();
+
 
 
     }
@@ -43,6 +47,11 @@ public class OfertaResponseDTO {
     public String getSemestre() {
         return semestre;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
 
     public void setSemestre(String semestre) {
         this.semestre = semestre;
