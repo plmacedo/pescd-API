@@ -1,12 +1,16 @@
 package br.ufscar.pescd.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "usuario")
-public class Usuario{
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -70,5 +74,44 @@ public class Usuario{
         this.cargos = cargos;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // O Spring pergunta: "Quais os cargos dessa pessoa?"
+        // Nós pegamos a String do seu banco (ex: ROLE_SECRETARIO) e convertemos pro formato do Spring
+        return this.cargos.stream()
+                .map(cargoString -> new SimpleGrantedAuthority(cargoString))
+                .toList();
+    }
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+
+    // Os métodos abaixo perguntam se a conta está bloqueada, expirada, etc.
+    // Como você provavelmente não tem isso no banco, retorne TRUE para todos, liberando o acesso.
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
+
+
+
 
