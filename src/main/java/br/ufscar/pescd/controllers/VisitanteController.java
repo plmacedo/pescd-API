@@ -1,29 +1,30 @@
 package br.ufscar.pescd.controllers;
 
+import br.ufscar.pescd.dto.OfertaResponseDTO;
 import br.ufscar.pescd.services.OfertaService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Controller;
-
-import org.springframework.ui.Model;
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/visitante")
 public class VisitanteController {
 
     @Autowired
     private OfertaService ofertaService;
 
-    @GetMapping("/visitante")
-    public String visitante(Model model) {
+    @GetMapping("/ofertas")
+    public ResponseEntity<List<OfertaResponseDTO>> listarOfertasVisitante() {
+        List<OfertaResponseDTO> ofertas = ofertaService.listarPorFimMaisRecente()
+                .stream()
+                .map(OfertaResponseDTO::new)
+                .collect(Collectors.toList());
 
-        model.addAttribute(
-                "ofertas",
-                ofertaService.listarPorFimMaisRecente()
-        );
-
-        return "visitante";
+        return ResponseEntity.ok(ofertas);
     }
 }

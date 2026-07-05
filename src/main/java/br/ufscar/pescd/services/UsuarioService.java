@@ -65,10 +65,10 @@ public class   UsuarioService {
 
         usuarioExistente.setNome(usuarioAtualizado.getNome());
         usuarioExistente.setUsername(usuarioAtualizado.getUsername());
-
-
-        usuarioExistente.setCargos(new ArrayList<>(usuarioAtualizado.getCargos()));
-
+        
+        if (usuarioAtualizado.getCargos() != null) {
+            usuarioExistente.setCargos(new ArrayList<>(usuarioAtualizado.getCargos()));
+        }
 
         if (usuarioAtualizado.getSenha() != null && !usuarioAtualizado.getSenha().trim().isEmpty()) {
             usuarioExistente.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
