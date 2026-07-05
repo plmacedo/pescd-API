@@ -1,5 +1,6 @@
 package br.ufscar.pescd.controllers;
 
+import br.ufscar.pescd.dto.MensagemDTO;
 import br.ufscar.pescd.dto.OfertaResponseDTO;
 import br.ufscar.pescd.dto.UsuarioResponseDTO;
 import br.ufscar.pescd.model.FraseConfirmacao;
@@ -87,8 +88,8 @@ public class AdministradorController {
     }
 
     @PutMapping("/mensagem")
-    public ResponseEntity<?> alterarMensagem(@RequestBody Map<String, String> payload) {
-        String texto = payload.get("texto");
+    public ResponseEntity<?> alterarMensagem(@RequestBody MensagemDTO dto) {
+        String texto = dto.getTexto();
         if (texto == null || texto.isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("erro", "O texto da mensagem não pode estar vazio."));
         }
