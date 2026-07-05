@@ -77,7 +77,7 @@ public class InscricaoService {
             throw new RuntimeException("Erro ao processar o arquivo PDF do plano de trabalho.", e);
         }
 
-        // 5. Altera o status da inscrição para PLANO ENVIADO [cite: 64]
+        // 5. Altera o status da inscrição para PLANO ENVIADO
         inscricao.setStatusPlano(StatusPlano.ENVIADO);
 
         // 6. Salva as alterações de forma definitiva no banco de dados
@@ -95,6 +95,11 @@ public class InscricaoService {
             oferta.incrementaNroEstudantes();
             inscricaoRepository.save(novaInscricao);
         }
+        else{
+            throw new IllegalArgumentException("Alerta: O aluno " + aluno.getNome() + " já está inscrito nesta oferta.");
+        }
+
+
     }
 
     public void enviarDocumentacao(Long inscricaoID, DocumentacaoFormDTO dto) throws IOException {
