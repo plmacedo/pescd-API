@@ -1,133 +1,173 @@
 package br.ufscar.pescd.controllers;
 
-import br.ufscar.pescd.dto.AnalisarDocumentacaoFormDTO;
-import br.ufscar.pescd.dto.ConcluirRelatorioFormDTO;
+import br.ufscar.pescd.dto.*;
+import br.ufscar.pescd.model.FraseConfirmacao;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.Oferta;
 import br.ufscar.pescd.model.StatusPlano;
+import br.ufscar.pescd.repositories.FraseRepository;
+import br.ufscar.pescd.repositories.InscricaoRepository;
+import br.ufscar.pescd.services.InscricaoService;
 import br.ufscar.pescd.services.OfertaService;
-
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
 @RequestMapping("/responsavel")
 public class ResponsavelController {
 
-    @Autowired
-    private OfertaService ofertaService;
+    private final OfertaService ofertaService;
+    private final InscricaoRepository inscricaoRepository;
+    private final InscricaoService inscricaoService;
+    private final FraseRepository fraseRepository;
 
-    @Autowired
-    private br.ufscar.pescd.repositories.InscricaoRepository inscricaoRepository;
-
-    @Autowired
-    private br.ufscar.pescd.services.InscricaoService inscricaoService;
+    public ResponsavelController(OfertaService ofertaService,
+                                 InscricaoRepository inscricaoRepository,
+                                 InscricaoService inscricaoService,
+                                 FraseRepository fraseRepository) {
+        this.ofertaService = ofertaService;
+        this.inscricaoRepository = inscricaoRepository;
+        this.inscricaoService = inscricaoService;
+        this.fraseRepository = fraseRepository;
+    }
 
     @GetMapping("/main")
-    public String main(Model model) {
+    public ResponseEntity<Map<String, Object>> main() {
 
-        model.addAttribute(
-                "ofertas",
-                ofertaService.listarComInscricoesPorFimMaisRecente()
-        );
+        Map<String, Object> response = new HashMap<>();
 
-        return "responsavel/main";
+        // Busca as ofertas
+        List<Oferta> ofertas = ofertaService.listarPorFimMaisRecente();
+
+        // Converte para DTO
+        List<OfertaResponseDTO> ofertasDTO = ofertas.stream()
+                .map(OfertaResponseDTO::new)
+                .toList();
+
+        response.put("ofertas", ofertasDTO);
+
+        FraseConfirmacao mensagem = fraseRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        response.put("mensagem", mensagem.getMensagem());
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/finalizar/{id}")
-    public String finalizarOferta(@PathVariable Long id) {
+    public ResponseEntity<?> finalizarOferta(@PathVariable Long id) {
 
         Oferta oferta = ofertaService.buscarPorId(id);
 
-        oferta.setStatus(
-                "Aguardando encerramento do secretario"
-        );
+        List<Inscricao> inscricoes =
+                inscricaoRepository.findByOfertaId(id);
+
+        boolean podeFinalizar = inscricoes.stream()
+                .allMatch(i -> i.getStatusPlano() == StatusPlano.CONCLUIDO_PELO_RESPONSAVEL);
+
+        if (!podeFinalizar) {
+            return ResponseEntity.badRequest()
+                    .body("Não é possível finalizar: existem alunos não concluídos pelo responsável.");
+        }
+
+        oferta.setStatus("Aguardando encerramento do secretario");
 
         ofertaService.salvar(oferta);
 
-        return "redirect:/responsavel/main";
+        return ResponseEntity.ok("Oferta finalizada com sucesso.");
     }
 
     @GetMapping("/oferta/{id}/detalhes")
-    public String detalhesOfertaResponsavel(@PathVariable Long id, Model model) {
+    public ResponseEntity<OfertaDetalhesDTO> detalhesOferta(@PathVariable Long id) {
+
         Oferta oferta = ofertaService.buscarPorId(id);
-        model.addAttribute("oferta", oferta);
-        model.addAttribute("inscricoes", inscricaoRepository.findByOfertaId(id));
-        return "responsavel/detalhes_oferta";
+
+        return ResponseEntity.ok(new OfertaDetalhesDTO(oferta));
     }
 
     @GetMapping("/inscricao/{id}/detalhes")
-    public String detalhesAlunoResponsavel(@PathVariable Long id, Model model) {
-        br.ufscar.pescd.model.Inscricao inscricao = inscricaoService.buscarPorID(id);
-        model.addAttribute("inscricao", inscricao);
-        return "responsavel/detalhes_aluno";
-    }
+    public ResponseEntity<InscricaoDetalhesDTO> detalhesAluno(@PathVariable Long id) {
 
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+
+        return ResponseEntity.ok(new InscricaoDetalhesDTO(inscricao));
+    }
     @GetMapping("/concluir-relatorio/{id}")
-    public String exibirFormularioConclusao(@PathVariable("id") Long id, Model model) {
+    public ResponseEntity<?> exibirFormularioConclusao(@PathVariable Long id) {
+
         Inscricao inscricao = inscricaoService.buscarPorID(id);
 
         ConcluirRelatorioFormDTO form = new ConcluirRelatorioFormDTO();
         form.setInscricaoID(inscricao.getId());
         form.setFrequencia(inscricao.getFrequencia());
-        form.setNota(inscricao.getSugestaoNota());
+        form.setNota(inscricao.getNotaFinal());
+        form.setParecer(inscricao.getParecerResponsavel());
 
-        model.addAttribute("inscricao", inscricao);
-        model.addAttribute("concluirRelatorioForm", form);
-        return "responsavel/concluir_relatorio";
+        Map<String, Object> response = new HashMap<>();
+        response.put("inscricao", new InscricaoDetalhesDTO(inscricao));
+        response.put("formulario", form);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/concluir-relatorio")
-    public String processarConclusao(@Valid @ModelAttribute("concluirRelatorioForm") ConcluirRelatorioFormDTO form,
-                                     BindingResult result, Model model) {
+    public ResponseEntity<?> processarConclusao(
+            @Valid @RequestBody ConcluirRelatorioFormDTO form,
+            BindingResult result) {
+
         if (result.hasErrors()) {
-            if (form.getInscricaoID() == null) {
-                return "redirect:/responsavel/main";
-            }
-            Inscricao inscricao = inscricaoService.buscarPorID(form.getInscricaoID());
-            model.addAttribute("inscricao", inscricao);
-            return "responsavel/concluir_relatorio";
+            return ResponseEntity.badRequest().body(
+                    result.getFieldErrors().stream()
+                            .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                            .toList()
+            );
         }
 
         inscricaoService.concluirRelatorioResponsavel(form);
-        return "redirect:/responsavel/main?sucesso=relatorio_concluido";
+
+        return ResponseEntity.ok("Relatório concluído com sucesso.");
     }
 
     @GetMapping("/analisarDocumentacao/{id}")
-    public String exibirFormularioAnaliseDocumentacao(@PathVariable("id") Long id, Model model) {
+    public ResponseEntity<?> exibirFormularioAnaliseDocumentacao(@PathVariable Long id) {
+
         Inscricao inscricao = inscricaoService.buscarPorID(id);
 
-        // Verifica a pré-condição: status deve ser "documentação enviada"
         if (inscricao.getStatusPlano() != StatusPlano.DOCUMENTACAO_ENVIADA) {
-            return "redirect:/responsavel/main";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A documentação ainda não pode ser analisada.");
         }
 
-        model.addAttribute("inscricao", inscricao);
-        model.addAttribute("analisarDocumentacaoDTO", new AnalisarDocumentacaoFormDTO());
+        Map<String, Object> response = new HashMap<>();
+        response.put("inscricao", inscricao);
+        response.put("formulario", new AnalisarDocumentacaoFormDTO());
 
-        return "responsavel/analisar_documentacao";
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/analisarDocumentacao/{id}")
-    public String processarAnaliseDocumentacao(
-            @PathVariable("id") Long id,
-            @Valid @ModelAttribute("analisarDocumentacaoDTO") AnalisarDocumentacaoFormDTO dto,
-            BindingResult result,
-            Model model) {
+    public ResponseEntity<?> processarAnaliseDocumentacao(
+            @PathVariable Long id,
+            @Valid @RequestBody AnalisarDocumentacaoFormDTO dto) {
 
-        if (result.hasErrors()) {
-            model.addAttribute("inscricao", inscricaoService.buscarPorID(id));
-            return "responsavel/analisar_documentacao";
+        Inscricao inscricao = inscricaoService.buscarPorID(id);
+
+        if (inscricao.getStatusPlano() != StatusPlano.DOCUMENTACAO_ENVIADA) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A documentação não está disponível para análise.");
         }
 
         inscricaoService.analisarDocumentacao(id, dto);
 
-        // Após finalizar, redireciona de volta para os detalhes da oferta
-        Inscricao inscricao = inscricaoService.buscarPorID(id);
-        return "redirect:/responsavel/main";
+        return ResponseEntity.ok("Documentação analisada com sucesso.");
     }
 }

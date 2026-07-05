@@ -24,16 +24,16 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO dto) {
-        // 1. Empacota as credenciais que vieram no JSON
+        // coleta dados do dto
         var usernamePassword = new UsernamePasswordAuthenticationToken(dto.username(), dto.password());
 
-        // 2. O Spring vai usar o seu AutenticacaoService para ir no banco e checar a senha
+        //  autenticacao do usuario
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        // 3. Se a senha bater, geramos o token!
+        // Se a senha bater, gera o token
         var token = tokenService.gerarToken(((Usuario) auth.getPrincipal()).getUsername());
 
-        // 4. Devolve o token na tela
+        // devolve o token na tela
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 }

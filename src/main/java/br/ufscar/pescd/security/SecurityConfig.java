@@ -33,7 +33,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         //TODOS (Já com as aspas arrumadas para o Swagger funcionar!)
-                        .requestMatchers("/login", "/api/auth/login" , "/css/**", "/visitante/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/login", "/api/auth/login" , "/css/**", "/visitante/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html","/error").permitAll()
                         //ALUNO
                         .requestMatchers("/aluno/**").hasRole("ALUNO")
                         //ADMINISTRADOR
