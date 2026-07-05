@@ -2,106 +2,115 @@ package br.ufscar.pescd.controllers;
 
 import br.ufscar.pescd.dto.AprovarPlanoFormDTO;
 import br.ufscar.pescd.dto.AprovarRelatorioFormDTO;
+import br.ufscar.pescd.dto.InscricaoResumoDTO;
+import br.ufscar.pescd.dto.InscricaoDetalhesDTO;
 import br.ufscar.pescd.model.Inscricao;
 import br.ufscar.pescd.model.StatusPlano;
+import br.ufscar.pescd.model.Usuario;
 import br.ufscar.pescd.services.InscricaoService;
+import br.ufscar.pescd.services.UsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import java.security.Principal;
-import java.util.List;
-import br.ufscar.pescd.model.Usuario;
-import br.ufscar.pescd.services.UsuarioService;
 
-@Controller
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@RestController
 @RequestMapping("/supervisor")
 public class SupervisorController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
+    private final InscricaoService inscricaoService;
 
-    @Autowired
-    private InscricaoService inscricaoService;
+    public SupervisorController(UsuarioService usuarioService,
+                                    InscricaoService inscricaoService) {
+        this.usuarioService = usuarioService;
+        this.inscricaoService = inscricaoService;
+    }
 
     @GetMapping("/main")
-    public String main(Model model, Principal principal) {
+    public ResponseEntity<?> main(Principal principal) {
+
         Usuario supervisor = usuarioService.buscarPorUsername(principal.getName());
 
         List<Inscricao> lista = inscricaoService.buscarPorSupervisor(supervisor);
 
-        if (lista != null) {
-            lista.forEach(i -> System.out.println("ID Inscrição: " + i.getId() + " - Status: " + i.getStatusPlano()));
-        }
+        List<InscricaoResumoDTO> dtos = lista.stream()
+                .map(InscricaoResumoDTO::new)
+                .toList();
 
-        model.addAttribute("inscricoes", lista);
-        return "supervisor/main";
+        Map<String, Object> response = new HashMap<>();
+        response.put("inscricoes", dtos);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/aprovar-plano/{id}")
-    public String exibirFormularioAprovacao(@PathVariable("id") Long id, Model model) {
+    public ResponseEntity<?> exibirFormularioAprovacao(@PathVariable Long id) {
+
         Inscricao inscricao = inscricaoService.buscarPorID(id);
 
-        // o status do aluno deve ser "plano enviado"
         if (inscricao.getStatusPlano() != StatusPlano.ENVIADO) {
-            return "redirect:/supervisor/main?erro=status_invalido";
+            return ResponseEntity.badRequest()
+                    .body("Status inválido para aprovação de plano.");
         }
 
         AprovarPlanoFormDTO form = new AprovarPlanoFormDTO();
         form.setInscricaoID(id);
 
-        // injeta os dados da inscrição (para os campos de leitura) e o formulário
-        model.addAttribute("inscricao", inscricao);
-        model.addAttribute("aprovarPlanoForm", form);
+        Map<String, Object> response = new HashMap<>();
+        response.put("inscricao", new InscricaoDetalhesDTO(inscricao));
+        response.put("formulario", form);
 
-        return "supervisor/aprovar_plano";
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/aprovar-plano")
-    public String processarAprovacao(@Valid @ModelAttribute("aprovarPlanoForm") AprovarPlanoFormDTO form,
-                                     BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            // caso de erro de validação, recarrega a página com as mensagens
-            Inscricao inscricao = inscricaoService.buscarPorID(form.getInscricaoID());
-            model.addAttribute("inscricao", inscricao);
-            return "supervisor/aprovar_plano";
-        }
-
+    public ResponseEntity<?> processarAprovacao(@Valid @RequestBody AprovarPlanoFormDTO form) {
         inscricaoService.aprovarPlano(form);
-        return "redirect:/supervisor/main?sucesso=plano_aprovado";
+        return ResponseEntity.ok("Plano aprovado com sucesso.");
     }
 
     @GetMapping("/aprovar-relatorio/{id}")
-    public String exibirFormularioAprovacaoRelatorio(@PathVariable("id") Long id, Model model) {
+    public ResponseEntity<?> exibirFormularioAprovacaoRelatorio(@PathVariable Long id) {
+
         Inscricao inscricao = inscricaoService.buscarPorID(id);
 
         if (inscricao.getStatusPlano() != StatusPlano.RELATORIO_ENVIADO) {
-            return "redirect:/supervisor/main?erro=status_invalido";
+            return ResponseEntity.badRequest()
+                    .body("Status inválido para aprovação de relatório.");
         }
 
         AprovarRelatorioFormDTO form = new AprovarRelatorioFormDTO();
         form.setInscricaoID(id);
-
         form.setFrequencia(inscricao.getFrequencia());
 
-        model.addAttribute("inscricao", inscricao);
-        model.addAttribute("aprovarRelatorioForm", form);
+        Map<String, Object> response = new HashMap<>();
+        response.put("inscricao", new InscricaoDetalhesDTO(inscricao));
+        response.put("formulario", form);
 
-        return "supervisor/aprovar_relatorio";
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/aprovar-relatorio")
-    public String processarAprovacaoRelatorio(@Valid @ModelAttribute("aprovarRelatorioForm") AprovarRelatorioFormDTO form,
-                                              BindingResult result, Model model) {
+    public ResponseEntity<?> processarAprovacaoRelatorio(
+            @Valid @RequestBody AprovarRelatorioFormDTO form,
+            BindingResult result) {
+
         if (result.hasErrors()) {
-            Inscricao inscricao = inscricaoService.buscarPorID(form.getInscricaoID());
-            model.addAttribute("inscricao", inscricao);
-            return "supervisor/aprovar_relatorio";
+            return ResponseEntity.badRequest()
+                    .body(result.getFieldErrors()
+                            .stream()
+                            .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                            .toList());
         }
 
         inscricaoService.aprovarRelatorio(form);
-        return "redirect:/supervisor/main?sucesso=relatorio_aprovado";
+
+        return ResponseEntity.ok("Relatório aprovado com sucesso.");
     }
 }
