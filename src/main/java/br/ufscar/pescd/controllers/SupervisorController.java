@@ -32,10 +32,9 @@ public class SupervisorController {
         this.inscricaoService = inscricaoService;
     }
 
-    @GetMapping("/main")
-    public ResponseEntity<?> main(Principal principal) {
-
-        Usuario supervisor = usuarioService.buscarPorUsername(principal.getName());
+    @GetMapping("/{id}/main")
+    public ResponseEntity<?> main(@PathVariable Long id, Principal principal) {
+        Usuario supervisor = usuarioService.buscarPorId(id);
 
         List<Inscricao> lista = inscricaoService.buscarPorSupervisor(supervisor);
 
